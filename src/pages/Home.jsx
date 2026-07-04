@@ -82,7 +82,7 @@ export default function Home() {
         </div>
         <motion.div
           variants={container} initial="hidden" animate="show"
-          style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}
+          className="tool-grid tool-grid-3"
         >
           {modules.map((mod, i) => (
             <motion.div key={mod.path} variants={item}>

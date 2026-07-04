@@ -18,23 +18,25 @@ const navItems = [
   { path: '/whatsapp', icon: <MessagesSquare size={20} />, label: 'Chats', color: '#25D366', badge: 'WA' },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ mobileOpen, setMobileOpen }) {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <motion.aside
-      animate={{ width: collapsed ? 72 : 260 }}
-      transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-      style={{
-        position: 'fixed', left: 0, top: 0, bottom: 0, zIndex: 100,
-        background: 'rgba(7,7,26,0.95)',
-        borderRight: '1px solid rgba(255,255,255,0.07)',
-        backdropFilter: 'blur(24px)',
-        display: 'flex', flexDirection: 'column',
-        overflow: 'hidden',
-      }}
-    >
-      {/* Header */}
+    <>
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div 
+          className="sidebar-overlay"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+      
+      <motion.aside
+        className={`sidebar ${mobileOpen ? 'mobile-open' : ''} ${collapsed ? 'collapsed' : ''}`}
+        animate={{ width: collapsed ? 72 : 260 }}
+        transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+      >
+        {/* Header */}
       <div style={{ padding: '16px', display: 'flex', alignItems: 'center', justifyContent: collapsed ? 'center' : 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)', minHeight: 72 }}>
         {!collapsed && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -49,6 +51,7 @@ export default function Sidebar() {
           </div>
         )}
         <motion.button
+          className="sidebar-toggle-btn"
           whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
           onClick={() => setCollapsed(!collapsed)}
           style={{
@@ -58,6 +61,12 @@ export default function Sidebar() {
         >
           {collapsed ? <Menu size={24} /> : <X size={20} />}
         </motion.button>
+        <button 
+          className="mobile-close-btn"
+          onClick={() => setMobileOpen(false)}
+        >
+          <X size={24} />
+        </button>
       </div>
 
       {/* Nav */}
@@ -68,6 +77,7 @@ export default function Sidebar() {
             to={item.path}
             end={item.path === '/'}
             style={{ textDecoration: 'none' }}
+            onClick={() => setMobileOpen(false)}
           >
             {({ isActive }) => (
               <motion.div
@@ -122,8 +132,7 @@ export default function Sidebar() {
           </NavLink>
         ))}
       </nav>
-
-
-    </motion.aside>
+      </motion.aside>
+    </>
   );
 }

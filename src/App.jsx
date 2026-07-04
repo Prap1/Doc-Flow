@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import { Toaster } from './components/Toast';
@@ -33,6 +34,8 @@ function AppRoutes() {
 }
 
 export default function App() {
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
   return (
     <BrowserRouter>
       <Routes>
@@ -41,9 +44,9 @@ export default function App() {
         {/* All other pages use the main layout */}
         <Route path="/*" element={
           <div className="app-layout">
-            <Sidebar />
+            <Sidebar mobileOpen={mobileSidebarOpen} setMobileOpen={setMobileSidebarOpen} />
             <div className="main-content">
-              <Header />
+              <Header onMenuClick={() => setMobileSidebarOpen(true)} />
               <AppRoutes />
             </div>
             <Toaster />

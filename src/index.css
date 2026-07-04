@@ -40,6 +40,70 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  transition: margin-left var(--transition);
+}
+
+.header {
+  position: fixed; 
+  top: 0; 
+  left: var(--sidebar-w); 
+  right: 0; 
+  height: var(--header-h); 
+  z-index: 90;
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between;
+  padding: 0 32px;
+  background: rgba(7,7,26,0.7);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  backdrop-filter: blur(24px);
+  transition: left var(--transition);
+}
+
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 100;
+  background: rgba(7,7,26,0.95);
+  border-right: 1px solid rgba(255,255,255,0.07);
+  backdrop-filter: blur(24px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.sidebar.collapsed {
+  --sidebar-w: 72px;
+}
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  z-index: 95;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.mobile-menu-btn {
+  display: none;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.mobile-close-btn {
+  display: none;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  padding: 4px;
 }
 
 .page-body {
@@ -144,6 +208,8 @@ body {
 .tool-grid-3 { grid-template-columns: repeat(3, 1fr); }
 .tool-grid-4 { grid-template-columns: repeat(4, 1fr); }
 
+.studio-grid { display: grid; grid-template-columns: 1fr 280px; gap: 20px; }
+
 /* File list */
 .file-list { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
 .file-item {
@@ -220,8 +286,20 @@ body {
 }
 @media (max-width: 768px) {
   .main-content { margin-left: 0; }
+  .header { left: 0; padding: 0 16px; }
   .page-body { padding: 16px; padding-top: calc(var(--header-h) + 16px); }
   .tool-grid-2, .tool-grid-3, .tool-grid-4 { grid-template-columns: 1fr; }
+  .studio-grid { grid-template-columns: 1fr; }
+  
+  .sidebar { transform: translateX(-100%); width: 260px !important; }
+  .sidebar.mobile-open { transform: translateX(0); }
+  .sidebar-toggle-btn { display: none !important; }
+  .mobile-close-btn { display: flex; }
+  
+  .mobile-menu-btn { display: flex; }
+  .header-emoji { display: none; }
+  .header-search { display: none !important; }
+  .header-ai-badge { display: none !important; }
   
   .whatsapp-container { flex-direction: column !important; height: auto !important; }
   .whatsapp-sidebar { width: 100% !important; height: 250px; border-right: none !important; border-bottom: 1px solid #e0e0e0; }

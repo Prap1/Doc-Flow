@@ -1,6 +1,6 @@
 import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Bell, Search, Sparkles } from 'lucide-react';
+import { Bell, Search, Sparkles, Menu } from 'lucide-react';
 
 const titles = {
   '/':      { label: 'Dashboard',    emoji: '🏠' },
@@ -12,24 +12,20 @@ const titles = {
   '/chat':  { label: 'Chat Studio',  emoji: '💬' },
 };
 
-export default function Header() {
+export default function Header({ onMenuClick }) {
   const { pathname } = useLocation();
   const info = titles[pathname] || { label: 'DocFlow Pro', emoji: '✨' };
 
   return (
     <motion.header
+      className="header"
       initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
-      style={{
-        position: 'fixed', top: 0, left: 260, right: 0, height: 64, zIndex: 90,
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 32px',
-        background: 'rgba(7,7,26,0.7)',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
-        backdropFilter: 'blur(24px)',
-      }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        <span style={{ fontSize: 22 }}>{info.emoji}</span>
+        <button className="mobile-menu-btn" onClick={onMenuClick}>
+          <Menu size={24} />
+        </button>
+        <span style={{ fontSize: 22 }} className="header-emoji">{info.emoji}</span>
         <div>
           <h2 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: 18, lineHeight: 1.2 }}>{info.label}</h2>
           <p style={{ fontSize: 12, color: 'rgba(240,240,255,0.4)' }}>DocFlow Pro · All-in-One Suite</p>
@@ -38,7 +34,7 @@ export default function Header() {
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         {/* Search */}
-        <div style={{
+        <div className="header-search" style={{
           display: 'flex', alignItems: 'center', gap: 8,
           background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)',
           borderRadius: 10, padding: '8px 14px',
@@ -46,12 +42,12 @@ export default function Header() {
           <Search size={15} color="rgba(240,240,255,0.4)" />
           <input
             placeholder="Search tools..."
-            style={{ background: 'none', border: 'none', outline: 'none', color: 'rgba(240,240,255,0.7)', fontSize: 13, width: 140, fontFamily: 'inherit' }}
+            style={{ background: 'none', border: 'none', outline: 'none', color: 'rgba(240,240,255,0.7)', fontSize: 13, width: '100%', fontFamily: 'inherit' }}
           />
         </div>
 
         {/* AI badge */}
-        <div style={{
+        <div className="header-ai-badge" style={{
           display: 'flex', alignItems: 'center', gap: 6,
           background: 'linear-gradient(135deg, rgba(108,99,255,0.2), rgba(0,217,255,0.1))',
           border: '1px solid rgba(108,99,255,0.3)', borderRadius: 99,

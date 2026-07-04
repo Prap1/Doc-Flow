@@ -188,7 +188,7 @@ export default function ChatStudio() {
         {/* CREATE tab */}
         {tab === 0 && activeType !== 'whatsapp' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 20 }}>
+            <div className="studio-grid">
               <div>
                 {/* Title */}
                 <div style={{ marginBottom: 12 }}>
