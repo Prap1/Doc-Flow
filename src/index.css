@@ -36,6 +36,9 @@ body {
 
 .main-content {
   flex: 1;
+  min-width: 0;
+  width: 100%;
+  overflow-x: hidden;
   margin-left: var(--sidebar-w);
   min-height: 100vh;
   display: flex;
@@ -168,21 +171,22 @@ body {
 /* Dropzone */
 .dropzone {
   border: 2px dashed var(--border);
-  border-radius: var(--radius);
+  border-radius: 20px;
   padding: 48px 24px;
   text-align: center;
   cursor: pointer;
   transition: var(--transition);
-  background: var(--bg-card);
+  background: white;
+  color: #111;
 }
 .dropzone:hover, .dropzone.active {
   border-color: var(--primary);
-  background: var(--bg-glass);
+  background: white;
   box-shadow: var(--shadow-glow);
 }
 .dropzone-icon { font-size: 48px; margin-bottom: 12px; }
-.dropzone h3 { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
-.dropzone p { color: var(--text-secondary); font-size: 14px; }
+.dropzone h3 { font-size: 18px; font-weight: 600; margin-bottom: 6px; color: #111; }
+.dropzone p { color: #555; font-size: 14px; }
 
 /* Badge */
 .badge {
@@ -209,6 +213,7 @@ body {
 .tool-grid-4 { grid-template-columns: repeat(4, 1fr); }
 
 .studio-grid { display: grid; grid-template-columns: 1fr 280px; gap: 20px; }
+.studio-grid > div { min-width: 0; }
 
 /* File list */
 .file-list { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
@@ -236,10 +241,10 @@ body {
 .input, .textarea {
   width: 100%;
   padding: 12px 16px;
-  background: var(--bg-card);
+  background: white;
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--text-primary);
+  border-radius: 20px;
+  color: #111;
   font-family: inherit;
   font-size: 14px;
   transition: var(--transition-fast);
@@ -266,11 +271,21 @@ body {
 }
 
 /* Tab system */
-.tabs { display: flex; gap: 4px; padding: 4px; background: var(--bg-card); border-radius: var(--radius-sm); border: 1px solid var(--border); margin-bottom: 24px; }
+.tabs { 
+  display: flex; gap: 4px; padding: 4px; background: var(--bg-card); 
+  border-radius: var(--radius-sm); border: 1px solid var(--border); 
+  margin-bottom: 24px; 
+  overflow-x: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+
 .tab {
   flex: 1; padding: 8px 16px; border-radius: 8px; font-size: 14px; font-weight: 500;
   cursor: pointer; border: none; background: transparent; color: var(--text-secondary);
   transition: var(--transition-fast); text-align: center;
+  white-space: nowrap;
 }
 .tab.active { background: var(--primary); color: #fff; box-shadow: 0 2px 12px rgba(108,99,255,0.4); }
 .tab:hover:not(.active) { color: var(--text-primary); background: var(--bg-glass); }

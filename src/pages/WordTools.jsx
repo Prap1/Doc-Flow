@@ -95,7 +95,14 @@ export default function WordTools() {
 
         <div className="tabs">
           {TABS.map((t, i) => (
-            <button key={i} className={`tab ${tab === i ? 'active' : ''}`} onClick={() => setTab(i)}>{t}</button>
+            <button 
+              key={i} 
+              className={`tab ${tab === i ? 'active' : ''}`} 
+              onClick={() => setTab(i)}
+              style={tab === i ? { background: toolColor, color: '#fff', boxShadow: `0 2px 12px ${toolColor}66` } : { color: toolColor }}
+            >
+              {t}
+            </button>
           ))}
         </div>
 
@@ -181,7 +188,7 @@ export default function WordTools() {
                 { label: 'Word → Google Docs', emoji: '📃', color: '#00FFB3' },
                 { label: 'Word → PDF', emoji: '📄', color: '#FF6B9D' },
               ].map((opt, i) => (
-                <motion.div key={i} whileHover={{ y: -3 }} className="card" style={{ padding: 24, background: `${opt.color}08`, borderColor: `${opt.color}20` }}>
+                <motion.div key={i} whileHover={{ y: -3 }} className="card" style={{ padding: 24, background: 'white', borderColor: `${opt.color}40`, boxShadow: `0 8px 32px ${opt.color}15` }}>
                   <div style={{ fontSize: 36, marginBottom: 12 }}>{opt.emoji}</div>
                   <h3 style={{ fontWeight: 700, marginBottom: 8, color: opt.color }}>{opt.label}</h3>
                   <FileDropzone

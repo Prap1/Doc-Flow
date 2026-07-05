@@ -3,13 +3,13 @@ import { motion } from 'framer-motion';
 import { Bell, Search, Sparkles, Menu } from 'lucide-react';
 
 const titles = {
-  '/':      { label: 'Dashboard',    emoji: '🏠' },
-  '/pdf':   { label: 'PDF Tools',    emoji: '📄' },
-  '/word':  { label: 'Word Tools',   emoji: '📝' },
-  '/docs':  { label: 'Docs Tools',   emoji: '📃' },
-  '/excel': { label: 'Excel Tools',  emoji: '📊' },
-  '/image': { label: 'Image Tools',  emoji: '🖼️' },
-  '/chat':  { label: 'Chat Studio',  emoji: '💬' },
+  '/': { label: 'Dashboard', emoji: '🏠' },
+  '/pdf': { label: 'PDF Tools', emoji: '📄' },
+  '/word': { label: 'Word Tools', emoji: '📝' },
+  '/docs': { label: 'Docs Tools', emoji: '📃' },
+  '/excel': { label: 'Excel Tools', emoji: '📊' },
+  '/image': { label: 'Image Tools', emoji: '🖼️' },
+  '/chat': { label: 'Post Studio', emoji: '💬' },
 };
 
 export default function Header({ onMenuClick }) {

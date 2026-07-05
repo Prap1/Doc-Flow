@@ -10,11 +10,11 @@ export default function WhatsAppStudio() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
             <span style={{ fontSize: 40 }}>📱</span>
             <div>
-              <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 32, fontWeight: 800 }}>WhatsApp Studio</h1>
+              <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 32, fontWeight: 800 }}>Chat Studio</h1>
               <p style={{ color: 'rgba(240,240,255,0.5)', fontSize: 15 }}>Create and generate PDF exports of simulated WhatsApp chats</p>
             </div>
           </div>
-          <span className="badge" style={{ background: 'white', color: '#25D366', border: '1px solid #25D366' }}><Sparkles size={11} /> WhatsApp</span>
+          <span className="badge" style={{ background: 'white', color: '#25D366', border: '1px solid #25D366' }}><Sparkles size={11} /> Chat</span>
         </div>
 
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>

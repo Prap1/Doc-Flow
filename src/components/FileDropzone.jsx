@@ -29,7 +29,7 @@ export default function FileDropzone({ onFiles, accept, multiple = true, label, 
       <h3 style={{ fontSize: 17, fontWeight: 600, marginBottom: 6 }}>
         {isDragActive ? 'Drop files here…' : (label || 'Drag & drop files here')}
       </h3>
-      <p style={{ color: 'rgba(240,240,255,0.5)', fontSize: 13, marginBottom: 16 }}>
+      <p style={{ color: '#666', fontSize: 13, marginBottom: 16 }}>
         {sublabel || 'or click to browse from your computer'}
       </p>
       <button

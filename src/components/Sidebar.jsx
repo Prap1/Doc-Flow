@@ -14,8 +14,8 @@ const navItems = [
   { path: '/docs', icon: <BookOpen size={20} />, label: 'Docs Tools', color: '#00FFB3', badge: 'DOCS' },
   { path: '/excel', icon: <FileSpreadsheet size={20} />, label: 'Excel Tools', color: '#FF8C42', badge: 'XLSX' },
   { path: '/image', icon: <Image size={20} />, label: 'Image Tools', color: '#A855F7', badge: 'IMG' },
-  { path: '/chat', icon: <MessageSquare size={20} />, label: 'Chat Studio', color: '#EC4899', badge: 'NEW' },
-  { path: '/whatsapp', icon: <MessagesSquare size={20} />, label: 'Chats', color: '#25D366', badge: 'WA' },
+  { path: '/chat', icon: <MessageSquare size={20} />, label: 'Post Studio', color: '#EC4899', badge: 'NEW' },
+  { path: '/whatsapp', icon: <MessagesSquare size={20} />, label: 'Chats Studio', color: '#25D366', badge: 'WA' },
 ];
 
 export default function Sidebar({ mobileOpen, setMobileOpen }) {

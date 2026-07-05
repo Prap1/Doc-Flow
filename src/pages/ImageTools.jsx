@@ -121,7 +121,16 @@ export default function ImageTools() {
         </div>
 
         <div className="tabs">
-          {TABS.map((t, i) => <button key={i} className={`tab ${tab === i ? 'active' : ''}`} onClick={() => setTab(i)}>{t}</button>)}
+          {TABS.map((t, i) => (
+            <button 
+              key={i} 
+              className={`tab ${tab === i ? 'active' : ''}`} 
+              onClick={() => setTab(i)}
+              style={tab === i ? { background: toolColor, color: '#fff', boxShadow: `0 2px 12px ${toolColor}66` } : { color: toolColor }}
+            >
+              {t}
+            </button>
+          ))}
         </div>
 
         {/* Edit */}

@@ -75,7 +75,16 @@ export default function DocsTools() {
         </div>
 
         <div className="tabs">
-          {TABS.map((t, i) => <button key={i} className={`tab ${tab === i ? 'active' : ''}`} onClick={() => setTab(i)}>{t}</button>)}
+          {TABS.map((t, i) => (
+            <button 
+              key={i} 
+              className={`tab ${tab === i ? 'active' : ''}`} 
+              onClick={() => setTab(i)}
+              style={tab === i ? { background: toolColor, color: '#fff', boxShadow: `0 2px 12px ${toolColor}66` } : { color: toolColor }}
+            >
+              {t}
+            </button>
+          ))}
         </div>
 
         {tab === 0 && (
@@ -152,11 +161,11 @@ export default function DocsTools() {
                 { label: 'Export → Word (.docx concept)', emoji: '📝', color: '#00D9FF', format: 'html' },
                 { label: 'Export → PDF concept', emoji: '📄', color: '#FF6B9D', format: 'html' },
               ].map((opt, i) => (
-                <motion.div key={i} whileHover={{ y: -3 }} className="card" style={{ padding: 28, textAlign: 'center', background: `${opt.color}08`, borderColor: `${opt.color}20`, cursor: 'pointer' }}
+                <motion.div key={i} whileHover={{ y: -3 }} className="card" style={{ padding: 28, textAlign: 'center', background: 'white', borderColor: `${opt.color}40`, cursor: 'pointer', boxShadow: `0 8px 32px ${opt.color}15` }}
                   onClick={() => exportAs(opt.format)}>
                   <div style={{ fontSize: 40, marginBottom: 12 }}>{opt.emoji}</div>
                   <h3 style={{ fontWeight: 700, color: opt.color, marginBottom: 8 }}>{opt.label}</h3>
-                  <p style={{ fontSize: 13, color: 'rgba(240,240,255,0.4)' }}>Click to convert and download current document</p>
+                  <p style={{ fontSize: 13, color: '#555' }}>Click to convert and download current document</p>
                 </motion.div>
               ))}
             </div>

@@ -194,26 +194,27 @@ export default function ChatStudio() {
                 <div style={{ marginBottom: 12 }}>
                   {activeType === 'post' && (
                     <div style={{ marginBottom: 16 }}>
-                      <label style={{ fontSize: 13, color: 'rgba(240,240,255,0.55)', display: 'block', marginBottom: 6, fontWeight: 600 }}>Select Platform</label>
-                      <select 
-                        className="input" 
-                        value={socialPlatform} 
-                        onChange={(e) => {
-                          // save current draft
-                          setSocialDrafts(prev => ({ ...prev, [socialPlatform]: { title, content } }));
-                          // load new draft
-                          const newPlatform = e.target.value;
-                          setSocialPlatform(newPlatform);
-                          setTitle(socialDrafts[newPlatform].title);
-                          setContent(socialDrafts[newPlatform].content);
-                        }}
-                      >
-                        <option value="twitter">Twitter</option>
-                        <option value="linkedin">LinkedIn</option>
-                        <option value="facebook">Facebook</option>
-                        <option value="instagram">Instagram</option>
-                        <option value="whatsapp">WhatsApp</option>
-                      </select>
+                      <label style={{ fontSize: 13, color: 'rgba(240,240,255,0.55)', display: 'block', marginBottom: 8, fontWeight: 600 }}>Select Platform</label>
+                      <div className="tabs" style={{ marginBottom: 0 }}>
+                        {['twitter', 'linkedin', 'facebook', 'instagram', 'whatsapp'].map((platform) => (
+                          <button
+                            key={platform}
+                            className={`tab ${socialPlatform === platform ? 'active' : ''}`}
+                            style={{ textTransform: 'capitalize' }}
+                            onClick={() => {
+                              if (socialPlatform === platform) return;
+                              // save current draft
+                              setSocialDrafts(prev => ({ ...prev, [socialPlatform]: { title, content } }));
+                              // load new draft
+                              setSocialPlatform(platform);
+                              setTitle(socialDrafts[platform].title);
+                              setContent(socialDrafts[platform].content);
+                            }}
+                          >
+                            {platform}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   )}
                   <label style={{ fontSize: 13, color: 'rgba(240,240,255,0.55)', display: 'block', marginBottom: 6, fontWeight: 600 }}>

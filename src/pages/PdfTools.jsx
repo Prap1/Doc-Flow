@@ -144,7 +144,14 @@ export default function PdfTools() {
 
         <div className="tabs">
           {TABS.map((t, i) => (
-            <button key={i} className={`tab ${tab === i ? 'active' : ''}`} onClick={() => setTab(i)}>{t}</button>
+            <button 
+              key={i} 
+              className={`tab ${tab === i ? 'active' : ''}`} 
+              onClick={() => setTab(i)}
+              style={tab === i ? { background: toolColor, color: '#fff', boxShadow: `0 2px 12px ${toolColor}66` } : { color: toolColor }}
+            >
+              {t}
+            </button>
           ))}
         </div>
 
@@ -243,10 +250,10 @@ export default function PdfTools() {
                 { label: 'PDF → Word (.docx)', emoji: '📝', desc: 'Convert your PDF to an editable Word document', color: '#00D9FF' },
                 { label: 'PDF → Google Docs', emoji: '📃', desc: 'Convert to Docs-compatible HTML format', color: '#00FFB3' },
               ].map((opt, i) => (
-                <motion.div key={i} whileHover={{ y: -3 }} className="card" style={{ padding: 24, background: `${opt.color}08`, borderColor: `${opt.color}20` }}>
+                <motion.div key={i} whileHover={{ y: -3 }} className="card" style={{ padding: 24, background: 'white', borderColor: `${opt.color}40`, boxShadow: `0 8px 32px ${opt.color}15` }}>
                   <div style={{ fontSize: 36, marginBottom: 12 }}>{opt.emoji}</div>
                   <h3 style={{ fontWeight: 700, marginBottom: 6, color: opt.color }}>{opt.label}</h3>
-                  <p style={{ fontSize: 13, color: 'rgba(240,240,255,0.5)', marginBottom: 16 }}>{opt.desc}</p>
+                  <p style={{ fontSize: 13, color: '#555', marginBottom: 16 }}>{opt.desc}</p>
                   <FileDropzone
                     onFiles={f => { showToast(`Converting ${f[0].name}…`, 'info'); setTimeout(() => showToast('Conversion complete!', 'success'), 1500); }}
                     accept={{ 'application/pdf': ['.pdf'] }} multiple={false} label="Drop PDF" sublabel="" icon="📄" color={opt.color}

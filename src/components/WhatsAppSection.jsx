@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { PDFDocument, rgb } from 'pdf-lib';
 import { saveAs } from 'file-saver';
-import { Download, Trash2, Calendar, CheckSquare, Square, Share2, Search, Plus, Paperclip, Video, Mic, Play } from 'lucide-react';
+import { Download, Trash2, Calendar, CheckSquare, Square, Share2, Search, Plus, Paperclip, Video, Mic, Play, Book, PenTool, Pencil, Eraser, Palette, Type } from 'lucide-react';
 import { showToast } from './Toast';
 
 export default function WhatsAppSection() {
@@ -94,17 +94,22 @@ export default function WhatsAppSection() {
     setShowSavePopup(true);
   };
 
+  const getChatsToExport = () => {
+    let chatsToExport = chats;
+    if (selectedChats.length > 0) {
+      chatsToExport = chats.filter(c => selectedChats.includes(c.id));
+    } else if (fromDate && toDate) {
+      chatsToExport = chats.filter(c => {
+        const d = new Date(c.date).getTime();
+        return d >= new Date(fromDate).getTime() && d <= new Date(toDate).getTime();
+      });
+    }
+    return chatsToExport;
+  };
+
   const exportPDF = async (action) => {
     try {
-      let chatsToExport = chats;
-      if (selectedChats.length > 0) {
-        chatsToExport = chats.filter(c => selectedChats.includes(c.id));
-      } else if (fromDate && toDate) {
-        chatsToExport = chats.filter(c => {
-          const d = new Date(c.date).getTime();
-          return d >= new Date(fromDate).getTime() && d <= new Date(toDate).getTime();
-        });
-      }
+      const chatsToExport = getChatsToExport();
 
       const pdfDoc = await PDFDocument.create();
       let page = pdfDoc.addPage([600, 800]);
@@ -292,7 +297,18 @@ export default function WhatsAppSection() {
       {showDatePopup && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div style={{ background: 'white', padding: 30, borderRadius: 16, width: 400, color: '#111', border: '1px solid #ddd' }}>
-            <h3 style={{ marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}><Calendar size={20} /> Select Date Range</h3>
+            <h3 style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}><Calendar size={20} /> Select Date Range</h3>
+            <p style={{ color: '#666', fontSize: 13, marginBottom: 12, background: '#f0f2f5', padding: '8px 12px', borderRadius: 8 }}>
+              {fromDate && toDate ? `${getChatsToExport().length} messages in selected range` : `${chats.length} total messages`}
+            </p>
+            
+            <div style={{ background: '#fafafa', border: '1px solid #eee', borderRadius: 8, padding: '10px', marginBottom: 16, maxHeight: 120, overflowY: 'auto', textAlign: 'left' }}>
+              {getChatsToExport().map(chat => (
+                <div key={chat.id} style={{ fontSize: 12, marginBottom: 6, color: '#444', borderBottom: '1px solid #f0f0f0', paddingBottom: 6 }}>
+                  <strong>{chat.sender}:</strong> {chat.text}
+                </div>
+              ))}
+            </div>
             <div style={{ marginBottom: 12 }}>
               <label style={{ display: 'block', fontSize: 12, marginBottom: 4, color: '#666' }}>From Date</label>
               <input type="datetime-local" value={fromDate} onChange={e => setFromDate(e.target.value)} style={{ width: '100%', padding: 10, borderRadius: 8, background: '#f0f2f5', color: '#111', border: '1px solid #ddd' }} />
@@ -301,9 +317,9 @@ export default function WhatsAppSection() {
               <label style={{ display: 'block', fontSize: 12, marginBottom: 4, color: '#666' }}>To Date</label>
               <input type="datetime-local" value={toDate} onChange={e => setToDate(e.target.value)} style={{ width: '100%', padding: 10, borderRadius: 8, background: '#f0f2f5', color: '#111', border: '1px solid #ddd' }} />
             </div>
-            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-              <button className="btn btn-secondary" onClick={() => setShowDatePopup(false)}>Cancel</button>
-              <button className="btn" style={{ background: '#00a884', color: 'white' }} onClick={processDateSelection}>Next</button>
+            <div style={{ display: 'flex', gap: 10, marginTop: 12 }}>
+              <button className="btn" style={{ flex: 1, justifyContent: 'center', background: '#f5f5f5', color: '#333', border: '1px solid #ddd', padding: '12px', borderRadius: 8, fontSize: 14, fontWeight: 500 }} onClick={() => setShowDatePopup(false)}>Cancel</button>
+              <button className="btn" style={{ flex: 1, justifyContent: 'center', background: '#00a884', color: 'white', border: 'none', padding: '12px', borderRadius: 8, fontSize: 14, fontWeight: 500 }} onClick={processDateSelection}>Next</button>
             </div>
           </div>
         </div>
@@ -312,17 +328,29 @@ export default function WhatsAppSection() {
       {/* Save Popup */}
       {showSavePopup === true && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: 'white', padding: 30, borderRadius: 16, width: 400, color: '#111', border: '1px solid #ddd', textAlign: 'center' }}>
+          <div style={{ background: 'white', padding: 30, borderRadius: 16, width: 400, color: '#111', border: '1px solid #ddd', textAlign: 'center', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
             <h3 style={{ marginBottom: 20 }}>Save & Export PDF</h3>
-            <p style={{ color: '#666', fontSize: 14, marginBottom: 24 }}>Your PDF is ready to be exported. Choose an option below.</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <p style={{ color: '#666', fontSize: 14, marginBottom: 12 }}>{getChatsToExport().length} messages selected. Choose an option below.</p>
+            
+            <div style={{ background: '#fafafa', border: '1px solid #eee', borderRadius: 8, padding: '10px', marginBottom: 24, maxHeight: 150, overflowY: 'auto', textAlign: 'left', flexShrink: 1 }}>
+              {getChatsToExport().map(chat => (
+                <div key={chat.id} style={{ fontSize: 12, marginBottom: 6, color: '#444', borderBottom: '1px solid #f0f0f0', paddingBottom: 6 }}>
+                  <strong>{chat.sender}:</strong> {chat.text}
+                </div>
+              ))}
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, flexShrink: 0 }}>
               <button className="btn" onClick={() => exportPDF('download')} style={{ padding: '12px', display: 'flex', justifyContent: 'center', background: '#00a884', color: 'white' }}>
                 <Download size={18} /> Download PDF
               </button>
-              <button className="btn btn-secondary" onClick={() => exportPDF('share')} style={{ padding: '12px', display: 'flex', justifyContent: 'center' }}>
+              <button className="btn" onClick={() => exportPDF('share')} style={{ padding: '12px', display: 'flex', justifyContent: 'center', background: '#f5f5f5', color: '#333', border: '1px solid #ddd' }}>
                 <Share2 size={18} /> Share PDF
               </button>
-              <button className="btn" onClick={() => setShowSavePopup(false)} style={{ background: 'transparent', color: '#666', border: 'none', padding: '12px', cursor: 'pointer' }}>Cancel</button>
+              <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
+                <button className="btn" onClick={() => { setShowSavePopup(false); setShowDatePopup(true); }} style={{ flex: 1, justifyContent: 'center', background: '#f5f5f5', color: '#333', border: '1px solid #ddd', padding: '12px', borderRadius: 8, fontSize: 14, fontWeight: 500 }}>Previous</button>
+                <button className="btn" onClick={() => setShowSavePopup(false)} style={{ flex: 1, justifyContent: 'center', background: '#f5f5f5', color: '#333', border: '1px solid #ddd', padding: '12px', borderRadius: 8, fontSize: 14, fontWeight: 500 }}>Cancel</button>
+              </div>
             </div>
           </div>
         </div>
@@ -336,12 +364,12 @@ export default function WhatsAppSection() {
             <p style={{ color: '#666', fontSize: 14, marginBottom: 24 }}>Select a platform to share your PDF directly.</p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
               {['WhatsApp', 'Twitter / X', 'LinkedIn', 'Facebook', 'Email'].map(platform => (
-                <button key={platform} className="btn btn-secondary" onClick={() => handleCustomShare(platform)} style={{ padding: '12px', display: 'flex', justifyContent: 'center', fontSize: 14 }}>
+                <button key={platform} className="btn" onClick={() => handleCustomShare(platform)} style={{ background: '#f5f5f5', color: '#333', border: '1px solid #ddd', padding: '12px', display: 'flex', justifyContent: 'center', fontSize: 14 }}>
                   {platform}
                 </button>
               ))}
             </div>
-            <button className="btn" onClick={() => setShowSavePopup(true)} style={{ background: 'transparent', color: '#666', border: 'none', padding: '12px', cursor: 'pointer', width: '100%' }}>Back</button>
+            <button className="btn" onClick={() => setShowSavePopup(true)} style={{ background: '#f5f5f5', color: '#333', border: '1px solid #ddd', padding: '12px', borderRadius: 8, fontSize: 14, fontWeight: 500, width: '100%', justifyContent: 'center' }}>Previous</button>
           </div>
         </div>
       )}
