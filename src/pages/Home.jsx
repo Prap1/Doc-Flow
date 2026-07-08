@@ -71,7 +71,7 @@ export default function Home() {
           borderRadius: 24,
           padding: '32px 40px',
           width: '100%',
-          maxWidth: 720,
+          maxWidth: 960,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -79,150 +79,125 @@ export default function Home() {
           backdropFilter: 'blur(12px)'
         }}>
           
-          {/* Main Text Area / Dropzone */}
-          <div className="dropzone" style={{
-            width: '100%',
-            height: 140,
-            border: '2px dashed rgba(255,255,255,0.15)',
-            borderRadius: 16,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginBottom: 20,
-            background: 'white',
-            transition: 'all 0.3s ease',
-            cursor: 'pointer',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
-          }}>
-            <UploadCloud size={48} color="#8B5CF6" style={{ marginBottom: 16, opacity: 0.8 }} />
-            <p style={{ fontSize: 18, fontWeight: 500, color: '#111', marginBottom: 8 }}>Create your own things and share</p>
-            <p style={{ fontSize: 13, color: '#555' }}>Drag and drop or click to upload</p>
-          </div>
-
-          {/* Input field with toolbar */}
-          <div style={{ width: '100%', marginBottom: 20 }}>
-            {isTyping && (
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={{ display: 'flex', gap: 6, padding: '8px 12px', background: '#f8f9fa', borderRadius: '20px 20px 0 0', border: '1px solid rgba(0,0,0,0.1)', borderBottom: 'none', alignItems: 'center', overflowX: 'auto' }}>
-                <button title="Notebook Font" onMouseDown={e => { e.preventDefault(); document.execCommand('fontName', false, 'Comic Sans MS'); }} style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 4 }}><Book size={16} color="#555"/></button>
-                <button title="Pen (Blue)" onMouseDown={e => { e.preventDefault(); document.execCommand('foreColor', false, '#3b82f6'); }} style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 4 }}><PenTool size={16} color="#555"/></button>
-                <button title="Pencil (Highlight)" onMouseDown={e => { e.preventDefault(); document.execCommand('hiliteColor', false, '#fef08a'); }} style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 4 }}><Pencil size={16} color="#555"/></button>
-                <button title="Eraser (Clear)" onMouseDown={e => { e.preventDefault(); document.execCommand('removeFormat', false, null); }} style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 4 }}><Eraser size={16} color="#555"/></button>
-                
-                <div style={{ width: 1, height: 16, background: 'rgba(0,0,0,0.1)', margin: '0 4px' }} />
-                
-                <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                  <Palette size={16} color="#555" style={{ marginRight: 4 }} />
-                  <input title="Color Selection" type="color" onInput={e => document.execCommand('foreColor', false, e.target.value)} style={{ width: 20, height: 20, border: 'none', background: 'none', cursor: 'pointer', padding: 0 }} />
-                </label>
-                
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <Type size={16} color="#555" style={{ marginRight: 4 }} />
-                  <select title="Font Size" onChange={e => document.execCommand('fontSize', false, e.target.value)} style={{ border: '1px solid rgba(0,0,0,0.1)', borderRadius: 4, padding: 2, color: '#333', fontSize: 12, background: 'white' }}>
-                    <option value="2">Small</option>
-                    <option value="3" selected>Normal</option>
-                    <option value="4">Large</option>
-                    <option value="5">Huge</option>
-                  </select>
-                </div>
-                
-                <div style={{ width: 1, height: 16, background: 'rgba(0,0,0,0.1)', margin: '0 4px' }} />
-
-                <button title="Add Meaning" onMouseDown={e => { 
-                  e.preventDefault(); 
-                  const sel = window.getSelection();
-                  if (sel.rangeCount > 0) setSavedRange(sel.getRangeAt(0));
-                  setShowMeaningPopup(true);
-                }} style={{ background: 'white', border: '1px solid rgba(0,0,0,0.1)', borderRadius: 6, cursor: 'pointer', padding: '4px 8px', fontSize: 12, fontWeight: 'bold', color: '#555', display: 'flex', alignItems: 'center' }}>**</button>
-              </motion.div>
-            )}
-            
-            <div 
-              contentEditable
-              suppressContentEditableWarning
-              onFocus={() => setIsTyping(true)}
-              onBlur={(e) => {
-                if (!e.currentTarget.textContent.trim()) {
-                  setIsTyping(false);
-                }
-              }}
-              style={{
-                border: '1px solid ' + (isTyping ? '#8B5CF6' : 'rgba(0,0,0,0.1)'),
-                borderRadius: isTyping ? '0 0 12px 12px' : 20,
-                padding: '16px 24px',
+          <div style={{ display: 'flex', flexDirection: 'row', width: '100%', gap: '32px', marginBottom: '24px', flexWrap: 'wrap' }}>
+            {/* Left side: Upload/Dropzone & Select file */}
+            <div style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div className="dropzone" style={{
                 width: '100%',
-                fontSize: 15,
-                color: '#111',
+                flex: 1,
+                minHeight: 180,
+                border: '2px dashed rgba(255,255,255,0.15)',
+                borderRadius: 16,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
                 background: 'white',
-                outline: 'none',
-                transition: 'border 0.2s, border-radius 0.2s',
-                minHeight: 56,
-                textAlign: 'left'
+                transition: 'all 0.3s ease',
+                cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+              }}>
+                <UploadCloud size={48} color="#8B5CF6" style={{ marginBottom: 16, opacity: 0.8 }} />
+                <p style={{ fontSize: 18, fontWeight: 500, color: '#111', marginBottom: 8, textAlign: 'center' }}>Create your own things and share</p>
+                <p style={{ fontSize: 13, color: '#555', textAlign: 'center' }}>Drag and drop or click to upload</p>
+              </div>
+
+              <button className="btn" style={{
+                background: 'transparent',
+                color: '#EAB308',
+                border: '2px solid #EAB308',
+                padding: '16px',
+                borderRadius: 12,
+                fontSize: 18,
+                fontWeight: 600,
+                width: '100%',
+                cursor: 'pointer',
+                display: 'flex',
+                justifyContent: 'center',
+                transition: 'all 0.2s'
               }}
-            >
-              {!isTyping && <span style={{ color: '#555', pointerEvents: 'none' }}>Create your own wish to all things.....</span>}
+              onMouseOver={(e) => { e.target.style.background = 'rgba(234, 179, 8, 0.1)'; }}
+              onMouseOut={(e) => { e.target.style.background = 'transparent'; }}
+              >
+                Select your file
+              </button>
+            </div>
+
+            {/* Right side: Typing area */}
+            <div style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ width: '100%', display: 'flex', flexDirection: 'column', height: '100%' }}>
+                {isTyping && (
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={{ display: 'flex', gap: 6, padding: '8px 12px', background: '#f8f9fa', borderRadius: '20px 20px 0 0', border: '1px solid rgba(0,0,0,0.1)', borderBottom: 'none', alignItems: 'center', overflowX: 'auto' }}>
+                    <button title="Notebook Font" onMouseDown={e => { e.preventDefault(); document.execCommand('fontName', false, 'Comic Sans MS'); }} style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 4 }}><Book size={16} color="#555"/></button>
+                    <button title="Pen (Blue)" onMouseDown={e => { e.preventDefault(); document.execCommand('foreColor', false, '#3b82f6'); }} style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 4 }}><PenTool size={16} color="#555"/></button>
+                    <button title="Pencil (Highlight)" onMouseDown={e => { e.preventDefault(); document.execCommand('hiliteColor', false, '#fef08a'); }} style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 4 }}><Pencil size={16} color="#555"/></button>
+                    <button title="Eraser (Clear)" onMouseDown={e => { e.preventDefault(); document.execCommand('removeFormat', false, null); }} style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 4 }}><Eraser size={16} color="#555"/></button>
+                    
+                    <div style={{ width: 1, height: 16, background: 'rgba(0,0,0,0.1)', margin: '0 4px' }} />
+                    
+                    <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                      <Palette size={16} color="#555" style={{ marginRight: 4 }} />
+                      <input title="Color Selection" type="color" onInput={e => document.execCommand('foreColor', false, e.target.value)} style={{ width: 20, height: 20, border: 'none', background: 'none', cursor: 'pointer', padding: 0 }} />
+                    </label>
+                    
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <Type size={16} color="#555" style={{ marginRight: 4 }} />
+                      <select title="Font Size" onChange={e => document.execCommand('fontSize', false, e.target.value)} style={{ border: '1px solid rgba(0,0,0,0.1)', borderRadius: 4, padding: 2, color: '#333', fontSize: 12, background: 'white' }}>
+                        <option value="2">Small</option>
+                        <option value="3" selected>Normal</option>
+                        <option value="4">Large</option>
+                        <option value="5">Huge</option>
+                      </select>
+                    </div>
+                    
+                    <div style={{ width: 1, height: 16, background: 'rgba(0,0,0,0.1)', margin: '0 4px' }} />
+
+                    <button title="Add Meaning" onMouseDown={e => { 
+                      e.preventDefault(); 
+                      const sel = window.getSelection();
+                      if (sel.rangeCount > 0) setSavedRange(sel.getRangeAt(0));
+                      setShowMeaningPopup(true);
+                    }} style={{ background: 'white', border: '1px solid rgba(0,0,0,0.1)', borderRadius: 6, cursor: 'pointer', padding: '4px 8px', fontSize: 12, fontWeight: 'bold', color: '#555', display: 'flex', alignItems: 'center' }}>**</button>
+                  </motion.div>
+                )}
+                
+                <div 
+                  contentEditable
+                  suppressContentEditableWarning
+                  onFocus={() => setIsTyping(true)}
+                  onBlur={(e) => {
+                    if (!e.currentTarget.textContent.trim()) {
+                      setIsTyping(false);
+                    }
+                  }}
+                  style={{
+                    border: '1px solid ' + (isTyping ? '#8B5CF6' : 'rgba(0,0,0,0.1)'),
+                    borderRadius: isTyping ? '0 0 12px 12px' : 20,
+                    padding: '16px 24px',
+                    width: '100%',
+                    flex: 1,
+                    fontSize: 15,
+                    color: '#111',
+                    background: 'white',
+                    outline: 'none',
+                    transition: 'border 0.2s, border-radius 0.2s',
+                    minHeight: isTyping ? 'calc(100% - 44px)' : 180,
+                    textAlign: 'left'
+                  }}
+                >
+                  {!isTyping && <span style={{ color: '#555', pointerEvents: 'none' }}>Create your own wish to all things.....</span>}
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Select file button */}
-          <button className="btn" style={{
-            background: 'transparent',
-            color: '#EAB308',
-            border: '2px solid #EAB308',
-            padding: '16px',
-            borderRadius: 12,
-            fontSize: 18,
-            fontWeight: 600,
-            width: '100%',
-            cursor: 'pointer',
-            marginBottom: 24,
-            display: 'flex',
-            justifyContent: 'center',
-            transition: 'all 0.2s'
-          }}
-          onMouseOver={(e) => { e.target.style.background = 'rgba(234, 179, 8, 0.1)'; }}
-          onMouseOut={(e) => { e.target.style.background = 'transparent'; }}
-          >
-            Select your file
-          </button>
-
-          {/* Icons row */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', padding: '0 20px', marginBottom: 24 }}>
-            {[
-              { letter: 'W', color: '#3b82f6', label: 'Word' },
-              { letter: 'P', color: '#ef4444', label: 'PDF' },
-              { letter: 'E', color: '#22c55e', label: 'Excel' },
-              { letter: 'J', color: '#eab308', label: 'Image' }
-            ].map(item => (
-              <div key={item.letter} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', transition: 'transform 0.2s' }} className="format-icon" onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-4px)'} onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
-                <div style={{ 
-                  width: 56, height: 56, 
-                  borderRadius: 16, 
-                  background: 'white', 
-                  border: '1px solid rgba(0,0,0,0.1)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 24, fontWeight: 'bold', color: '#111',
-                  marginBottom: 10,
-                  position: 'relative',
-                  boxShadow: `0 8px 24px ${item.color}15`
-                }}>
-                  {item.letter}
-                  {/* Glowing indicator dot */}
-                  <div style={{ position: 'absolute', top: -4, right: -4, width: 12, height: 12, borderRadius: '50%', background: item.color, boxShadow: `0 0 12px ${item.color}` }} />
-                </div>
-                <div style={{ fontSize: 11, color: '#555', fontWeight: 600, letterSpacing: 0.5, textTransform: 'uppercase' }}>
-                  MERGE {item.label}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Bottom text */}
-          <div style={{ padding: '12px 32px', background: '#f8f9fa', borderRadius: 99, border: '1px solid rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ fontSize: 18 }}>✨</span>
-            <span style={{ fontWeight: 500, color: '#333', letterSpacing: 0.5 }}>Chat / Story / Post</span>
-            <span style={{ fontSize: 18 }}>✨</span>
-          </div>
+          <Link to="/chat" style={{ textDecoration: 'none' }}>
+            <div style={{ padding: '12px 32px', background: '#f8f9fa', borderRadius: 99, border: '1px solid rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', transition: 'transform 0.2s' }} onMouseOver={e => e.currentTarget.style.transform = 'scale(1.05)'} onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}>
+              <span style={{ fontSize: 18 }}>✨</span>
+              <span style={{ fontWeight: 500, color: '#333', letterSpacing: 0.5 }}>Chat / Story / Post</span>
+              <span style={{ fontSize: 18 }}>✨</span>
+            </div>
+          </Link>
 
         </motion.div>
       </motion.div>

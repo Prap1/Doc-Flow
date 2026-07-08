@@ -17,6 +17,9 @@ const POST_TYPES = [
   { id: 'chat', label: 'Chat', icon: '💬', color: '#00D9FF', desc: 'Conversational style message or thread' },
 ];
 
+const POST_PLATFORMS = ['youtube', 'instagram', 'whatsapp', 'snapchat', 'telegram', 'facebook', 'linkedin', 'google apps'];
+const ALL_PLATFORMS = [...POST_PLATFORMS];
+
 const AVATARS = ['👩‍💻', '🧑‍🎨', '👨‍🚀', '👩‍🏫', '🧙', '🦸', '🦊', '🐼'];
 const BACKGROUNDS = [
   { label: 'Violet', value: 'linear-gradient(135deg, #1a1040 0%, #0d0825 100%)' },
@@ -43,14 +46,19 @@ export default function ChatStudio() {
   const [saving, setSaving] = useState(false);
   const [myPosts, setMyPosts] = useState([]);
   const [loadingPosts, setLoadingPosts] = useState(false);
-  const [socialPlatform, setSocialPlatform] = useState('twitter');
-  const [socialDrafts, setSocialDrafts] = useState({
-    twitter: { title: '', content: '' },
-    linkedin: { title: '', content: '' },
-    facebook: { title: '', content: '' },
-    instagram: { title: '', content: '' },
-    whatsapp: { title: '', content: '' },
+  const [socialPlatform, setSocialPlatform] = useState(POST_PLATFORMS[0]);
+  const [socialDrafts, setSocialDrafts] = useState(() => {
+    const drafts = {};
+    ALL_PLATFORMS.forEach(p => { drafts[p] = { title: '', content: '' }; });
+    return drafts;
   });
+
+  // When activeType changes, make sure socialPlatform is valid for the new type
+  useEffect(() => {
+    if (activeType === 'post' && !POST_PLATFORMS.includes(socialPlatform)) {
+      setSocialPlatform(POST_PLATFORMS[0]);
+    }
+  }, [activeType, socialPlatform]);
 
   const pt = POST_TYPES.find(p => p.id === activeType);
 
@@ -195,12 +203,12 @@ export default function ChatStudio() {
                   {activeType === 'post' && (
                     <div style={{ marginBottom: 16 }}>
                       <label style={{ fontSize: 13, color: 'rgba(240,240,255,0.55)', display: 'block', marginBottom: 8, fontWeight: 600 }}>Select Platform</label>
-                      <div className="tabs" style={{ marginBottom: 0 }}>
-                        {['twitter', 'linkedin', 'facebook', 'instagram', 'whatsapp'].map((platform) => (
+                      <div className="tabs" style={{ marginBottom: 0, flexWrap: 'wrap' }}>
+                        {POST_PLATFORMS.map((platform) => (
                           <button
                             key={platform}
                             className={`tab ${socialPlatform === platform ? 'active' : ''}`}
-                            style={{ textTransform: 'capitalize' }}
+                            style={{ textTransform: 'capitalize', padding: '6px 12px', fontSize: 13 }}
                             onClick={() => {
                               if (socialPlatform === platform) return;
                               // save current draft
