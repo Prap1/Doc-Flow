@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FileText, File, BookOpen, FileSpreadsheet, Image, MessageSquare, ArrowRight, Sparkles, UploadCloud, Book, PenTool, Pencil, Eraser, Palette, Type } from 'lucide-react';
 import Logo from '../assets/Logo';
+import { showToast } from '../components/Toast';
 
 const modules = [
   { path: '/pdf',   emoji: '📄', label: 'PDF Tools',   desc: 'Edit · Merge · Split · Convert',  color: '#FF6B9D', bg: 'rgba(255,107,157,0.08)' },
@@ -12,8 +13,6 @@ const modules = [
   { path: '/image', emoji: '🖼️', label: 'Image Tools', desc: 'Edit · Crop · Merge · Filters',   color: '#A855F7', bg: 'rgba(168,85,247,0.08)' },
   { path: '/chat',  emoji: '💬', label: 'Chat Studio', desc: 'Create · Edit · Share · Voice',   color: '#EC4899', bg: 'rgba(236,72,153,0.08)', badge: '✨ New' },
 ];
-
-
 
 const container = {
   hidden: { opacity: 0 },
@@ -25,11 +24,35 @@ const item = {
 };
 
 export default function Home() {
+  const navigate = useNavigate();
   const [isTyping, setIsTyping] = useState(false);
   const [showMeaningPopup, setShowMeaningPopup] = useState(false);
   const [symbolInput, setSymbolInput] = useState('**');
   const [meaningInput, setMeaningInput] = useState('');
   const [savedRange, setSavedRange] = useState(null);
+  const fileInputRef = useRef(null);
+
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const name = file.name.toLowerCase();
+      
+      if (name.endsWith('.pdf')) {
+        navigate('/pdf', { state: { importedFile: file } });
+      } else if (name.endsWith('.docx') || name.endsWith('.doc')) {
+        navigate('/word', { state: { importedFile: file } });
+      } else if (name.endsWith('.xlsx') || name.endsWith('.xls') || name.endsWith('.csv')) {
+        navigate('/excel', { state: { importedFile: file } });
+      } else if (name.match(/\.(jpg|jpeg|png|webp|gif)$/)) {
+        navigate('/image', { state: { importedFile: file } });
+      } else {
+        showToast(`File "${file.name}" loaded into memory.`, 'success');
+      }
+      
+      // Reset input so the same file can be selected again
+      e.target.value = null;
+    }
+  };
 
   return (
     <div className="page-body" style={{ paddingTop: 80 }}>
@@ -37,112 +60,76 @@ export default function Home() {
       {/* Hero */}
       <motion.div
         initial={{ opacity: 0, y: 32 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
-        style={{ textAlign: 'center', marginBottom: 64, position: 'relative' }}
+        className="text-center mb-16 relative"
       >
         {/* Glow orbs */}
-        <div style={{ position: 'absolute', top: -60, left: '20%', width: 300, height: 300, background: 'radial-gradient(circle, rgba(108,99,255,0.15) 0%, transparent 70%)', pointerEvents: 'none', borderRadius: '50%' }} />
-        <div style={{ position: 'absolute', top: -40, right: '20%', width: 250, height: 250, background: 'radial-gradient(circle, rgba(0,217,255,0.1) 0%, transparent 70%)', pointerEvents: 'none', borderRadius: '50%' }} />
+        <div className="absolute -top-16 left-[20%] w-72 h-72 rounded-full pointer-events-none bg-[radial-gradient(circle,rgba(108,99,255,0.15)_0%,transparent_70%)]" />
+        <div className="absolute -top-10 right-[20%] w-64 h-64 rounded-full pointer-events-none bg-[radial-gradient(circle,rgba(0,217,255,0.1)_0%,transparent_70%)]" />
 
         <motion.div
           animate={{ rotate: [0, 5, -5, 0] }} transition={{ repeat: Infinity, duration: 6, ease: 'easeInOut' }}
-          style={{ display: 'inline-block', marginBottom: 20 }}
+          className="inline-block mb-5"
         >
           <Logo size={72} />
         </motion.div>
-        <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 'clamp(36px,5vw,64px)', fontWeight: 900, lineHeight: 1.15, marginBottom: 16 }}>
-          <span className="gradient-text">DocFlow Pro</span>
+        <h1 className="font-outfit font-black leading-tight mb-4 text-[clamp(36px,5vw,64px)]">
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-400">DocFlow Pro</span>
           <br />
-          <span style={{ color: 'rgba(240,240,255,0.75)', fontWeight: 600, fontSize: '55%' }}>Your All-in-One Document Suite</span>
+          <span className="text-white/75 font-semibold text-[55%]">Your All-in-One Document Suite</span>
         </h1>
-        <p style={{ color: 'rgba(240,240,255,0.5)', fontSize: 17, maxWidth: 540, margin: '0 auto 28px' }}>
+        <p className="text-white/50 text-lg max-w-xl mx-auto mb-7">
           Edit, merge, split and convert PDFs, Word docs, Spreadsheets, Images and create viral content — all in one beautiful workspace.
         </p>
-        <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link to="/pdf"><button className="btn btn-primary btn-lg"><Sparkles size={18} /> Get Started</button></Link>
-          <Link to="/chat"><button className="btn btn-secondary btn-lg"><MessageSquare size={18} /> Chat Studio</button></Link>
+        <div className="flex gap-3 justify-center flex-wrap">
+          <Link to="/pdf"><button className="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-semibold transition-all"><Sparkles size={18} /> Get Started</button></Link>
+          <Link to="/chat"><button className="flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 text-white border border-white/10 rounded-xl font-semibold transition-all"><MessageSquare size={18} /> Chat Studio</button></Link>
         </div>
       </motion.div>
 
       {/* Custom Upload Section (Polished UI) */}
-      <motion.div variants={container} initial="hidden" animate="show" style={{ display: 'flex', justifyContent: 'center', marginBottom: 48 }}>
-        <motion.div variants={item} style={{ 
-          border: '1px solid rgba(139, 92, 246, 0.5)',
-          boxShadow: '0 0 40px rgba(139, 92, 246, 0.15)',
-          borderRadius: 24,
-          padding: '32px 40px',
-          width: '100%',
-          maxWidth: 960,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          background: 'white',
-          backdropFilter: 'blur(12px)'
-        }}>
+      <motion.div variants={container} initial="hidden" animate="show" className="flex justify-center mb-12 w-full">
+        <motion.div variants={item} className="flex flex-col items-center w-full max-w-5xl px-4">
           
-          <div style={{ display: 'flex', flexDirection: 'row', width: '100%', gap: '32px', marginBottom: '24px', flexWrap: 'wrap' }}>
+          <div className="flex flex-row w-full gap-8 mb-8">
             {/* Left side: Upload/Dropzone & Select file */}
-            <div style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <div className="dropzone" style={{
-                width: '100%',
-                flex: 1,
-                minHeight: 180,
-                border: '2px dashed rgba(255,255,255,0.15)',
-                borderRadius: 16,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: 'white',
-                transition: 'all 0.3s ease',
-                cursor: 'pointer',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
-              }}>
-                <UploadCloud size={48} color="#8B5CF6" style={{ marginBottom: 16, opacity: 0.8 }} />
-                <p style={{ fontSize: 18, fontWeight: 500, color: '#111', marginBottom: 8, textAlign: 'center' }}>Create your own things and share</p>
-                <p style={{ fontSize: 13, color: '#555', textAlign: 'center' }}>Drag and drop or click to upload</p>
+            <div className="flex-1 flex flex-col gap-5 p-8 rounded-3xl bg-white shadow-[0_0_40px_rgba(139,92,246,0.15)] transition-colors">
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                style={{ display: 'none' }} 
+                onChange={handleFileChange} 
+              />
+              <div onClick={() => fileInputRef.current?.click()} className="flex-1 min-h-[180px] rounded-2xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center bg-gray-50 transition-all duration-300 cursor-pointer hover:bg-gray-100 hover:border-indigo-400">
+                <UploadCloud size={48} className="text-indigo-500 mb-4" />
+                <p className="text-lg font-medium text-gray-900 mb-2 text-center">Create your own things and share</p>
+                <p className="text-sm text-gray-500 text-center">Drag and drop or click to upload</p>
               </div>
 
-              <button className="btn" style={{
-                background: 'transparent',
-                color: '#EAB308',
-                border: '2px solid #EAB308',
-                padding: '16px',
-                borderRadius: 12,
-                fontSize: 18,
-                fontWeight: 600,
-                width: '100%',
-                cursor: 'pointer',
-                display: 'flex',
-                justifyContent: 'center',
-                transition: 'all 0.2s'
-              }}
-              onMouseOver={(e) => { e.target.style.background = 'rgba(234, 179, 8, 0.1)'; }}
-              onMouseOut={(e) => { e.target.style.background = 'transparent'; }}
-              >
+              <button onClick={() => fileInputRef.current?.click()} className="w-full py-4 px-6 rounded-xl border-2 border-yellow-500 text-yellow-600 font-bold text-lg flex justify-center transition-all hover:bg-yellow-50">
                 Select your file
               </button>
             </div>
 
             {/* Right side: Typing area */}
-            <div style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column' }}>
-              <div style={{ width: '100%', display: 'flex', flexDirection: 'column', height: '100%' }}>
+            <div className="flex-1 flex flex-col p-8 rounded-3xl bg-white shadow-[0_0_40px_rgba(139,92,246,0.15)] transition-colors">
+              <div className="w-full flex flex-col h-full">
                 {isTyping && (
-                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={{ display: 'flex', gap: 6, padding: '8px 12px', background: '#f8f9fa', borderRadius: '20px 20px 0 0', border: '1px solid rgba(0,0,0,0.1)', borderBottom: 'none', alignItems: 'center', overflowX: 'auto' }}>
-                    <button title="Notebook Font" onMouseDown={e => { e.preventDefault(); document.execCommand('fontName', false, 'Comic Sans MS'); }} style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 4 }}><Book size={16} color="#555"/></button>
-                    <button title="Pen (Blue)" onMouseDown={e => { e.preventDefault(); document.execCommand('foreColor', false, '#3b82f6'); }} style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 4 }}><PenTool size={16} color="#555"/></button>
-                    <button title="Pencil (Highlight)" onMouseDown={e => { e.preventDefault(); document.execCommand('hiliteColor', false, '#fef08a'); }} style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 4 }}><Pencil size={16} color="#555"/></button>
-                    <button title="Eraser (Clear)" onMouseDown={e => { e.preventDefault(); document.execCommand('removeFormat', false, null); }} style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 4 }}><Eraser size={16} color="#555"/></button>
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex gap-1.5 p-2 bg-white/10 rounded-t-xl border border-white/10 border-b-0 items-center overflow-x-auto">
+                    <button title="Notebook Font" onMouseDown={e => { e.preventDefault(); document.execCommand('fontName', false, 'Comic Sans MS'); }} className="p-1 bg-transparent border-none cursor-pointer text-white/70 hover:text-white"><Book size={16}/></button>
+                    <button title="Pen (Blue)" onMouseDown={e => { e.preventDefault(); document.execCommand('foreColor', false, '#3b82f6'); }} className="p-1 bg-transparent border-none cursor-pointer text-white/70 hover:text-white"><PenTool size={16}/></button>
+                    <button title="Pencil (Highlight)" onMouseDown={e => { e.preventDefault(); document.execCommand('hiliteColor', false, '#fef08a'); }} className="p-1 bg-transparent border-none cursor-pointer text-white/70 hover:text-white"><Pencil size={16}/></button>
+                    <button title="Eraser (Clear)" onMouseDown={e => { e.preventDefault(); document.execCommand('removeFormat', false, null); }} className="p-1 bg-transparent border-none cursor-pointer text-white/70 hover:text-white"><Eraser size={16}/></button>
                     
-                    <div style={{ width: 1, height: 16, background: 'rgba(0,0,0,0.1)', margin: '0 4px' }} />
+                    <div className="w-[1px] h-4 bg-white/20 mx-1" />
                     
-                    <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                      <Palette size={16} color="#555" style={{ marginRight: 4 }} />
-                      <input title="Color Selection" type="color" onInput={e => document.execCommand('foreColor', false, e.target.value)} style={{ width: 20, height: 20, border: 'none', background: 'none', cursor: 'pointer', padding: 0 }} />
+                    <label className="flex items-center cursor-pointer">
+                      <Palette size={16} className="text-white/70 mr-1" />
+                      <input title="Color Selection" type="color" onInput={e => document.execCommand('foreColor', false, e.target.value)} className="w-5 h-5 border-none bg-transparent cursor-pointer p-0" />
                     </label>
                     
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                      <Type size={16} color="#555" style={{ marginRight: 4 }} />
-                      <select title="Font Size" onChange={e => document.execCommand('fontSize', false, e.target.value)} style={{ border: '1px solid rgba(0,0,0,0.1)', borderRadius: 4, padding: 2, color: '#333', fontSize: 12, background: 'white' }}>
+                    <div className="flex items-center">
+                      <Type size={16} className="text-white/70 mr-1" />
+                      <select title="Font Size" onChange={e => document.execCommand('fontSize', false, e.target.value)} className="border border-white/20 rounded p-0.5 text-black text-xs bg-white/90">
                         <option value="2">Small</option>
                         <option value="3" selected>Normal</option>
                         <option value="4">Large</option>
@@ -150,14 +137,14 @@ export default function Home() {
                       </select>
                     </div>
                     
-                    <div style={{ width: 1, height: 16, background: 'rgba(0,0,0,0.1)', margin: '0 4px' }} />
+                    <div className="w-[1px] h-4 bg-white/20 mx-1" />
 
                     <button title="Add Meaning" onMouseDown={e => { 
                       e.preventDefault(); 
                       const sel = window.getSelection();
                       if (sel.rangeCount > 0) setSavedRange(sel.getRangeAt(0));
                       setShowMeaningPopup(true);
-                    }} style={{ background: 'white', border: '1px solid rgba(0,0,0,0.1)', borderRadius: 6, cursor: 'pointer', padding: '4px 8px', fontSize: 12, fontWeight: 'bold', color: '#555', display: 'flex', alignItems: 'center' }}>**</button>
+                    }} className="bg-white/10 border border-white/20 rounded-md cursor-pointer px-2 py-1 text-xs font-bold text-white hover:bg-white/20">**</button>
                   </motion.div>
                 )}
                 
@@ -170,32 +157,19 @@ export default function Home() {
                       setIsTyping(false);
                     }
                   }}
-                  style={{
-                    border: '1px solid ' + (isTyping ? '#8B5CF6' : 'rgba(0,0,0,0.1)'),
-                    borderRadius: isTyping ? '0 0 12px 12px' : 20,
-                    padding: '16px 24px',
-                    width: '100%',
-                    flex: 1,
-                    fontSize: 15,
-                    color: '#111',
-                    background: 'white',
-                    outline: 'none',
-                    transition: 'border 0.2s, border-radius 0.2s',
-                    minHeight: isTyping ? 'calc(100% - 44px)' : 180,
-                    textAlign: 'left'
-                  }}
+                  className={`w-full flex-1 p-6 text-[15px] outline-none transition-all text-left bg-gray-50 text-gray-900 ${isTyping ? 'border border-indigo-500 rounded-b-xl min-h-[calc(100%-44px)]' : 'border border-gray-200 rounded-2xl min-h-[180px] hover:border-gray-300'}`}
                 >
-                  {!isTyping && <span style={{ color: '#555', pointerEvents: 'none' }}>Create your own wish to all things.....</span>}
+                  {!isTyping && <span className="text-gray-400 pointer-events-none">Create your own wish to all things.....</span>}
                 </div>
               </div>
             </div>
           </div>
 
-          <Link to="/chat" style={{ textDecoration: 'none' }}>
-            <div style={{ padding: '12px 32px', background: '#f8f9fa', borderRadius: 99, border: '1px solid rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', transition: 'transform 0.2s' }} onMouseOver={e => e.currentTarget.style.transform = 'scale(1.05)'} onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}>
-              <span style={{ fontSize: 18 }}>✨</span>
-              <span style={{ fontWeight: 500, color: '#333', letterSpacing: 0.5 }}>Chat / Story / Post</span>
-              <span style={{ fontSize: 18 }}>✨</span>
+          <Link to="/chat" className="no-underline">
+            <div className="px-8 py-3 bg-white/5 hover:bg-white/10 rounded-full border border-white/10 flex items-center gap-3 cursor-pointer transition-transform hover:scale-105">
+              <span className="text-lg">✨</span>
+              <span className="font-medium text-white/90 tracking-wide">Chat / Story / Post</span>
+              <span className="text-lg">✨</span>
             </div>
           </Link>
 

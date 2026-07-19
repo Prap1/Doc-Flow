@@ -34,7 +34,6 @@ export default function FileDropzone({ onFiles, accept, multiple = true, label, 
       </p>
       <button
         className="btn btn-secondary btn-sm"
-        onClick={e => e.stopPropagation()}
         style={{ borderColor: color + '40', color }}
       >
         <Upload size={14} /> Choose File{multiple ? 's' : ''}

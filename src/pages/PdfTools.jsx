@@ -1,12 +1,27 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { saveAs } from 'file-saver';
 import FileDropzone from '../components/FileDropzone';
+import PdfCanvasEditor from '../components/PdfCanvasEditor';
 import { showToast } from '../components/Toast';
 import { Trash2, Download, Scissors, Merge, FileText, RefreshCw, Server, Cpu } from 'lucide-react';
-import * as api from '../api';
+import { 
+  usePdfAnnotateMutation, 
+  usePdfInfoMutation, 
+  usePdfMergeMutation, 
+  usePdfSplitMutation,
+  usePdfToDocxMutation,
+  usePdfToHtmlMutation,
+  useHtmlToPdfMutation
+} from '../store/apiSlice';
 
-const TABS = ['Edit / Annotate', 'Merge PDFs', 'Split PDF', 'Convert'];
+const TOOLS = [
+  { id: 0, action: 'edit', title: 'Edit PDF', desc: 'Extract & edit text', icon: '📝', color: '#FF6B9D' },
+  { id: 1, action: 'merge', title: 'Merge PDFs', desc: 'Combine multiple files', icon: '🔗', color: '#8B5CF6' },
+  { id: 2, action: 'split', title: 'Split PDF', desc: 'Separate pages', icon: '✂️', color: '#00D9FF' },
+  { id: 3, action: 'convert', title: 'Convert PDF', desc: 'To Word or Docs', icon: '🔄', color: '#00FFB3' },
+];
 
 function formatBytes(b) {
   if (b < 1024) return b + ' B';
@@ -15,59 +30,82 @@ function formatBytes(b) {
 }
 
 export default function PdfTools() {
-  const [tab, setTab] = useState(0);
+  const location = useLocation();
+  const { action } = useParams();
+  const navigate = useNavigate();
+
+  const activeTool = action ? TOOLS.find(t => t.action === action)?.id ?? null : null;
+
   const [files, setFiles] = useState([]);
   const [mergeFiles, setMergeFiles] = useState([]);
   const [splitFile, setSplitFile] = useState(null);
   const [splitPage, setSplitPage] = useState('');
-  const [annotation, setAnnotation] = useState('');
-  const [processing, setProcessing] = useState(false);
+  const [htmlContent, setHtmlContent] = useState('');
   const [useServer, setUseServer] = useState(true);
   const [pageInfo, setPageInfo] = useState(null);
+  const [convertedFile, setConvertedFile] = useState(null);
 
+  const [pdfInfoReq] = usePdfInfoMutation();
+  const [pdfMerge, { isLoading: isMerging }] = usePdfMergeMutation();
+  const [pdfSplit, { isLoading: isSplitting }] = usePdfSplitMutation();
+  const [pdfToDocx, { isLoading: isConvertingToDocx }] = usePdfToDocxMutation();
+  const [pdfToHtml] = usePdfToHtmlMutation();
+  const [htmlToPdf, { isLoading: isConvertingToPdf }] = useHtmlToPdfMutation();
+
+  const [isExtracting, setIsExtracting] = useState(false);
+  const processing = isMerging || isSplitting || isConvertingToPdf;
   const toolColor = '#FF6B9D';
 
-  /* ── ANNOTATE ── */
-  const handleAnnotate = async () => {
-    if (!files[0]) return showToast('Please upload a PDF first', 'error');
-    setProcessing(true);
-    try {
-      if (useServer) {
-        const blob = await api.pdfAnnotate(files[0], annotation || 'Annotated by DocFlow Pro');
-        saveAs(blob, `annotated_${files[0].name}`);
-        showToast('PDF annotated via server!', 'success');
-      } else {
-        // Client-side fallback (pdf-lib)
-        const { PDFDocument, rgb, StandardFonts } = await import('pdf-lib');
-        const bytes = await files[0].arrayBuffer();
-        const pdfDoc = await PDFDocument.load(bytes);
-        const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-        pdfDoc.getPages()[0].drawText(annotation || 'Annotated by DocFlow Pro', { x: 50, y: 50, size: 14, font, color: rgb(0.43, 0.39, 1) });
-        const out = await pdfDoc.save();
-        saveAs(new Blob([out], { type: 'application/pdf' }), `annotated_${files[0].name}`);
-        showToast('PDF annotated (client-side)!', 'success');
-      }
-    } catch (e) { showToast(`Annotation failed: ${e.message}`, 'error'); }
-    setProcessing(false);
+  useEffect(() => {
+    if (location.state?.importedFile) {
+      const file = location.state.importedFile;
+      setFiles([file]);
+      navigate('/pdf/edit');
+      
+      const fd = new FormData();
+      fd.append('file', file);
+      pdfInfoReq(fd).unwrap()
+        .then(info => setPageInfo({ page_count: info.pages }))
+        .catch(() => setPageInfo(null));
+        
+      pdfToHtml(fd).unwrap()
+        .then(html => {
+          setHtmlContent(html);
+        })
+        .catch(() => showToast('Could not extract layout from PDF', 'error'));
+        
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state, pdfInfoReq, pdfToHtml]);
+
+  const loadPdfForEditing = async (f) => {
+    setFiles([f]);
+    const fd = new FormData();
+    fd.append('file', f);
+    pdfInfoReq(fd).unwrap().then(info => setPageInfo({ page_count: info.pages })).catch(() => {});
   };
 
-  /* ── GET INFO ── */
-  const handleGetInfo = async () => {
-    if (!files[0]) return;
+  const handleSavePdf = async () => {
+    if (!htmlContent) return showToast('Nothing to save', 'error');
     try {
-      const info = await api.pdfInfo(files[0]);
-      setPageInfo(info);
-      showToast(`PDF has ${info.page_count} pages`, 'info');
-    } catch { setPageInfo(null); }
+      const fd = new FormData();
+      fd.append('html', htmlContent);
+      const blob = await htmlToPdf(fd).unwrap();
+      saveAs(blob, `edited_${files[0]?.name || 'document'}.pdf`);
+      showToast('PDF saved successfully!', 'success');
+    } catch (e) {
+      showToast(`Save failed: ${e.message}`, 'error');
+    }
   };
 
   /* ── MERGE ── */
   const handleMerge = async () => {
     if (mergeFiles.length < 2) return showToast('Add at least 2 PDFs', 'error');
-    setProcessing(true);
     try {
       if (useServer) {
-        const blob = await api.pdfMerge(mergeFiles);
+        const fd = new FormData();
+        mergeFiles.forEach(f => fd.append('files', f));
+        const blob = await pdfMerge(fd).unwrap();
         saveAs(blob, 'merged_docflow.pdf');
         showToast('PDFs merged via server!', 'success');
       } else {
@@ -83,19 +121,20 @@ export default function PdfTools() {
         saveAs(new Blob([out], { type: 'application/pdf' }), 'merged_docflow.pdf');
         showToast('PDFs merged (client-side)!', 'success');
       }
-    } catch (e) { showToast(`Merge failed: ${e.message}`, 'error'); }
-    setProcessing(false);
+    } catch (e) { showToast(`Merge failed: ${e.message || 'Server error'}`, 'error'); }
   };
 
   /* ── SPLIT ── */
   const handleSplit = async () => {
     if (!splitFile) return showToast('Upload a PDF to split', 'error');
-    setProcessing(true);
     try {
       if (useServer) {
-        const blob = await api.pdfSplit(splitFile, splitPage);
+        const fd = new FormData();
+        fd.append('file', splitFile);
+        if (splitPage) fd.append('pages', splitPage);
+        const blob = await pdfSplit(fd).unwrap();
         saveAs(blob, `split_${splitFile.name}.zip`);
-        showToast('PDF split into ZIP via server!', 'success');
+        showToast('PDF split via server!', 'success');
       } else {
         const { PDFDocument } = await import('pdf-lib');
         const bytes = await splitFile.arrayBuffer();
@@ -113,8 +152,7 @@ export default function PdfTools() {
         }
         showToast(`Split into ${pageNums.length} page(s)!`, 'success');
       }
-    } catch (e) { showToast(`Split failed: ${e.message}`, 'error'); }
-    setProcessing(false);
+    } catch (e) { showToast(`Split failed: ${e.message || 'Server error'}`, 'error'); }
   };
 
   const ServerToggle = () => (
@@ -133,60 +171,69 @@ export default function PdfTools() {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
         <div className="page-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-            <span style={{ fontSize: 40 }}>📄</span>
+            <span style={{ fontSize: 40 }}>{activeTool !== null ? TOOLS[activeTool].icon : '📄'}</span>
             <div>
-              <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 32, fontWeight: 800 }}>PDF Tools</h1>
-              <p style={{ color: 'rgba(240,240,255,0.5)', fontSize: 15 }}>Edit, Merge, Split & Convert your PDFs</p>
+              <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 32, fontWeight: 800 }}>
+                {activeTool !== null ? TOOLS[activeTool].title : 'PDF Tools'}
+              </h1>
+              <p style={{ color: 'rgba(240,240,255,0.5)', fontSize: 15 }}>
+                {activeTool !== null ? TOOLS[activeTool].desc : 'Edit, Merge, Split & Convert your PDFs'}
+              </p>
             </div>
           </div>
           <div className="badge" style={{ background: 'white', color: 'red', border: '1px solid red' }}>PDF Suite</div>
         </div>
 
-        <div className="tabs">
-          {TABS.map((t, i) => (
+        {activeTool === null ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-6 w-full">
+            {TOOLS.map((tool) => (
+              <motion.div
+                key={tool.id}
+                whileHover={{ y: -4 }}
+                onClick={() => navigate('/pdf/' + tool.action)}
+                className="bg-white/5 border rounded-2xl p-6 cursor-pointer flex flex-col gap-3 relative overflow-hidden transition-colors hover:border-white/20"
+                style={{ borderColor: `${tool.color}30` }}
+              >
+                <div className="absolute -top-5 -right-5 text-[80px] opacity-5 pointer-events-none">{tool.icon}</div>
+                <div className="text-3xl">{tool.icon}</div>
+                <div>
+                  <h3 className="text-lg font-bold mb-1" style={{ color: tool.color }}>{tool.title}</h3>
+                  <p className="text-[13px] text-white/50">{tool.desc}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="section" style={{ marginTop: 24 }}>
             <button 
-              key={i} 
-              className={`tab ${tab === i ? 'active' : ''}`} 
-              onClick={() => setTab(i)}
-              style={tab === i ? { background: toolColor, color: '#fff', boxShadow: `0 2px 12px ${toolColor}66` } : { color: toolColor }}
+              onClick={() => { navigate('/pdf'); setFiles([]); setMergeFiles([]); setSplitFile(null); setHtmlContent(''); }}
+              style={{ background: 'transparent', border: 'none', color: 'rgba(240,240,255,0.6)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 20, fontSize: 14 }}
             >
-              {t}
+              ← Back to Tools
             </button>
-          ))}
-        </div>
 
-        {/* Tab: Edit */}
-        {tab === 0 && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="section">
-            <ServerToggle />
-            <FileDropzone onFiles={f => { setFiles(f); setTimeout(() => handleGetInfo(), 100); }}
-              accept={{ 'application/pdf': ['.pdf'] }} multiple={false} label="Drop your PDF here" icon="📄" color={toolColor} />
-            {files[0] && (
+            {/* Tab: Edit */}
+            {activeTool === 0 && (
+              <div className="tool-content">
+            {isExtracting ? (
+              <div className="flex flex-col items-center justify-center p-12 border border-dashed rounded-xl border-white/20 bg-white/5" style={{ minHeight: 200 }}>
+                <RefreshCw className="animate-spin mb-4" size={32} color={toolColor} />
+                <p className="text-white/70">Extracting PDF layout and text...</p>
+              </div>
+            ) : !files[0] ? (
+              <FileDropzone onFiles={f => loadPdfForEditing(f[0])}
+                accept={{ 'application/pdf': ['.pdf'] }} multiple={false} label="Drop your PDF here to visually edit" icon="📄" color={toolColor} />
+            ) : (
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={{ marginTop: 20 }}>
-                <div className="file-item" style={{ marginBottom: 16 }}>
-                  <div className="file-item-icon" style={{ background: 'rgba(255,107,157,0.15)', color: toolColor }}>📄</div>
-                  <div className="file-item-info">
-                    <div className="file-item-name">{files[0].name}</div>
-                    <div className="file-item-size">{formatBytes(files[0].size)} {pageInfo && `· ${pageInfo.page_count} pages`}</div>
-                  </div>
-                  <button className="btn btn-secondary btn-sm" onClick={() => { setFiles([]); setPageInfo(null); }}><Trash2 size={13} /></button>
-                </div>
-                <div style={{ marginBottom: 12 }}>
-                  <label style={{ fontSize: 13, color: 'rgba(240,240,255,0.6)', display: 'block', marginBottom: 6 }}>Annotation text (added to page 1)</label>
-                  <input className="input" value={annotation} onChange={e => setAnnotation(e.target.value)} placeholder="Enter annotation text…" />
-                </div>
-                <button className="btn btn-accent" onClick={handleAnnotate} disabled={processing}>
-                  {processing ? <RefreshCw size={15} /> : <FileText size={15} />}
-                  {processing ? 'Processing…' : 'Annotate & Download PDF'}
-                </button>
+                <PdfCanvasEditor file={files[0]} onCancel={() => { setFiles([]); setPageInfo(null); }} />
               </motion.div>
             )}
-          </motion.div>
-        )}
+              </div>
+            )}
 
-        {/* Tab: Merge */}
-        {tab === 1 && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="section">
+            {/* Tab: Merge */}
+            {activeTool === 1 && (
+              <div className="tool-content">
             <ServerToggle />
             <FileDropzone onFiles={f => setMergeFiles(prev => [...prev, ...f])}
               accept={{ 'application/pdf': ['.pdf'] }} label="Add PDFs to merge" icon="🔗" color={toolColor} />
@@ -204,18 +251,18 @@ export default function PdfTools() {
                 </div>
                 <div style={{ marginTop: 16, display: 'flex', gap: 8 }}>
                   <button className="btn btn-accent" onClick={handleMerge} disabled={processing}>
-                    {processing ? <RefreshCw size={15} /> : <Merge size={15} />} {processing ? 'Merging…' : `Merge ${mergeFiles.length} PDFs`}
+                    {processing ? <RefreshCw className="animate-spin" size={15} /> : <Merge size={15} />} {processing ? 'Merging…' : `Merge ${mergeFiles.length} PDFs`}
                   </button>
                   <button className="btn btn-secondary" onClick={() => setMergeFiles([])}><Trash2 size={15} /> Clear All</button>
                 </div>
               </motion.div>
             )}
-          </motion.div>
-        )}
+              </div>
+            )}
 
-        {/* Tab: Split */}
-        {tab === 2 && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="section">
+            {/* Tab: Split */}
+            {activeTool === 2 && (
+              <div className="tool-content">
             <ServerToggle />
             <FileDropzone onFiles={f => setSplitFile(f[0])}
               accept={{ 'application/pdf': ['.pdf'] }} multiple={false} label="Drop PDF to split" icon="✂️" color={toolColor} />
@@ -233,34 +280,84 @@ export default function PdfTools() {
                 </div>
                 <div style={{ display: 'flex', gap: 8 }}>
                   <button className="btn btn-accent" onClick={handleSplit} disabled={processing}>
-                    {processing ? <RefreshCw size={15} /> : <Scissors size={15} />} {processing ? 'Splitting…' : 'Split PDF'}
+                    {processing ? <RefreshCw className="animate-spin" size={15} /> : <Scissors size={15} />} {processing ? 'Splitting…' : 'Split PDF'}
                   </button>
                   <button className="btn btn-secondary" onClick={() => setSplitFile(null)}><Trash2 size={13} /> Remove</button>
                 </div>
               </motion.div>
             )}
-          </motion.div>
-        )}
+              </div>
+            )}
 
-        {/* Tab: Convert */}
-        {tab === 3 && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="section">
+            {/* Tab: Convert */}
+            {activeTool === 3 && (
+              <div className="tool-content">
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
               {[
                 { label: 'PDF → Word (.docx)', emoji: '📝', desc: 'Convert your PDF to an editable Word document', color: '#00D9FF' },
-                { label: 'PDF → Google Docs', emoji: '📃', desc: 'Convert to Docs-compatible HTML format', color: '#00FFB3' },
+                { label: 'PDF → Google Docs', emoji: '📃', desc: 'Convert to Docs-compatible format (.docx)', color: '#00FFB3' },
               ].map((opt, i) => (
                 <motion.div key={i} whileHover={{ y: -3 }} className="card" style={{ padding: 24, background: 'white', borderColor: `${opt.color}40`, boxShadow: `0 8px 32px ${opt.color}15` }}>
                   <div style={{ fontSize: 36, marginBottom: 12 }}>{opt.emoji}</div>
                   <h3 style={{ fontWeight: 700, marginBottom: 6, color: opt.color }}>{opt.label}</h3>
                   <p style={{ fontSize: 13, color: '#555', marginBottom: 16 }}>{opt.desc}</p>
-                  <FileDropzone
-                    onFiles={f => { showToast(`Converting ${f[0].name}…`, 'info'); setTimeout(() => showToast('Conversion complete!', 'success'), 1500); }}
-                    accept={{ 'application/pdf': ['.pdf'] }} multiple={false} label="Drop PDF" sublabel="" icon="📄" color={opt.color}
-                  />
+                  
+                  {convertedFile?.index === i ? (
+                    <div style={{ padding: 16, background: `${opt.color}10`, borderRadius: 12, border: `1px solid ${opt.color}30` }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+                        <span style={{ fontSize: 24 }}>✅</span>
+                        <div>
+                          <div style={{ fontSize: 14, fontWeight: 600, color: '#333' }}>Conversion Complete</div>
+                          <div style={{ fontSize: 12, color: '#666' }}>{convertedFile.name}</div>
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button className="btn btn-primary btn-sm" style={{ flex: 1, background: opt.color, borderColor: opt.color, color: 'white' }} onClick={() => { saveAs(convertedFile.blob, convertedFile.name); showToast('Downloading file...', 'success'); }}>
+                          <Download size={14} /> Download
+                        </button>
+                        <button className="btn btn-secondary btn-sm" style={{ flex: 1 }} onClick={() => { navigator.clipboard.writeText('https://docflow.pro/share/' + Math.random().toString(36).substring(7)); showToast('Share link copied to clipboard!', 'success'); }}>
+                          🔗 Share
+                        </button>
+                      </div>
+                      <button className="btn btn-secondary btn-sm" style={{ width: '100%', marginTop: 8 }} onClick={() => setConvertedFile(null)}>
+                        <RefreshCw size={14} /> Convert Another
+                      </button>
+                    </div>
+                  ) : isConvertingToDocx ? (
+                    <div className="flex flex-col items-center justify-center p-12 border border-dashed rounded-xl border-black/10 bg-black/5" style={{ minHeight: 200 }}>
+                      <RefreshCw className="animate-spin mb-4" size={32} color={opt.color} />
+                      <p className="text-black/70">Converting your PDF...</p>
+                    </div>
+                  ) : (
+                    <FileDropzone
+                      onFiles={async f => { 
+                        showToast(`Converting ${f[0].name}…`, 'info'); 
+                        try {
+                          const fd = new FormData();
+                          fd.append('file', f[0]);
+                          let blob;
+                          let ext = '';
+                          if (i === 0) {
+                            blob = await pdfToDocx(fd).unwrap();
+                            ext = '.docx';
+                          } else {
+                            blob = await pdfToDocx(fd).unwrap();
+                            ext = '.docx';
+                          }
+                          setConvertedFile({ index: i, name: `converted_${f[0].name.replace('.pdf', ext)}`, blob });
+                          showToast('Conversion complete!', 'success');
+                        } catch (e) {
+                          showToast(`Conversion failed: ${e.message || 'Server error'}`, 'error');
+                        }
+                      }}
+                      accept={{ 'application/pdf': ['.pdf'] }} multiple={false} label="Drop PDF" sublabel="" icon="📄" color={opt.color}
+                    />
+                  )}
                 </motion.div>
               ))}
             </div>
+              </div>
+            )}
           </motion.div>
         )}
       </motion.div>

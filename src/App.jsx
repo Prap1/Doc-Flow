@@ -1,8 +1,8 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
-import Sidebar from './components/Sidebar';
 import Header from './components/Header';
+import Footer from './components/Footer';
 import { Toaster } from './components/Toast';
 import Home from './pages/Home';
 import PdfTools from './pages/PdfTools';
@@ -20,11 +20,11 @@ function AppRoutes() {
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         <Route path="/"           element={<Home />} />
-        <Route path="/pdf"        element={<PdfTools />} />
-        <Route path="/word"       element={<WordTools />} />
-        <Route path="/docs"       element={<DocsTools />} />
-        <Route path="/excel"      element={<ExcelTools />} />
-        <Route path="/image"      element={<ImageTools />} />
+        <Route path="/pdf/:action?"        element={<PdfTools />} />
+        <Route path="/word/:action?"       element={<WordTools />} />
+        <Route path="/docs/:action?"       element={<DocsTools />} />
+        <Route path="/excel/:action?"      element={<ExcelTools />} />
+        <Route path="/image/:action?"      element={<ImageTools />} />
         <Route path="/chat"       element={<ChatStudio />} />
         <Route path="/whatsapp"   element={<WhatsAppStudio />} />
         <Route path="/share/:id"  element={<SharePost />} />
@@ -34,8 +34,6 @@ function AppRoutes() {
 }
 
 export default function App() {
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-
   return (
     <BrowserRouter>
       <Routes>
@@ -43,12 +41,12 @@ export default function App() {
         <Route path="/share/:id" element={<SharePost />} />
         {/* All other pages use the main layout */}
         <Route path="/*" element={
-          <div className="app-layout">
-            <Sidebar mobileOpen={mobileSidebarOpen} setMobileOpen={setMobileSidebarOpen} />
-            <div className="main-content">
-              <Header onMenuClick={() => setMobileSidebarOpen(true)} />
+          <div className="min-h-screen flex flex-col text-white font-inter overflow-x-hidden pt-16 selection:bg-indigo-500/30 selection:text-white">
+            <Header />
+            <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col">
               <AppRoutes />
-            </div>
+            </main>
+            <Footer />
             <Toaster />
           </div>
         } />
@@ -56,4 +54,3 @@ export default function App() {
     </BrowserRouter>
   );
 }
-

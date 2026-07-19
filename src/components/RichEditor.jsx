@@ -1,137 +1,196 @@
-import { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, Eraser, PenTool, Pencil, Book } from 'lucide-react';
+import { 
+  Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, 
+  Type, Palette, Eraser, PenTool, Pencil, Book, MousePointer2, 
+  Image as ImageIcon, Trash2, SmilePlus
+} from 'lucide-react';
 
 const EMOJIS = ['😊','🔥','💡','⭐','🚀','❤️','✅','📌','🎯','💪','🌟','👋'];
+const COLORS = [
+  '#FF8A8A', '#FFB26B', '#FFD56F', '#85FF7A', '#60FFDB', 
+  '#59C1FF', '#4579FF', '#7C4DFF', '#000000', '#FFFFFF'
+];
 
 export default function RichEditor({ value, onChange, placeholder = 'Start writing…', minHeight = 200, showEmoji = false }) {
   const [activeFormats, setActiveFormats] = useState([]);
   const [fontSize, setFontSize] = useState(16);
+  const [activeTool, setActiveTool] = useState('text');
+  const [selectedColor, setSelectedColor] = useState('#000000');
+  
   const [showMeaningPopup, setShowMeaningPopup] = useState(false);
   const [symbolInput, setSymbolInput] = useState('**');
   const [meaningInput, setMeaningInput] = useState('');
   const [savedRange, setSavedRange] = useState(null);
+  
+  const editorRef = useRef(null);
+  const isInternalChange = useRef(false);
+
+  useEffect(() => {
+    if (editorRef.current && value !== undefined) {
+      if (!isInternalChange.current && editorRef.current.innerHTML !== value) {
+        editorRef.current.innerHTML = value;
+      }
+      isInternalChange.current = false;
+    }
+  }, [value]);
 
   const execCmd = (cmd, val = null) => {
     document.execCommand(cmd, false, val);
     setActiveFormats(prev => prev.includes(cmd) ? prev.filter(f => f !== cmd) : [...prev, cmd]);
+    editorRef.current?.focus();
   };
 
   const insertEmoji = (emoji) => {
     document.execCommand('insertText', false, emoji);
+    editorRef.current?.focus();
+  };
+  
+  const handleColorChange = (c) => {
+    setSelectedColor(c);
+    if (activeTool === 'pencil') {
+      execCmd('hiliteColor', c);
+    } else {
+      execCmd('foreColor', c);
+    }
   };
 
-  const toolbarBtns = [
-    { cmd: 'bold',          icon: <Bold size={14} />,          title: 'Bold' },
-    { cmd: 'italic',        icon: <Italic size={14} />,        title: 'Italic' },
-    { cmd: 'underline',     icon: <Underline size={14} />,     title: 'Underline' },
-    { cmd: 'justifyLeft',   icon: <AlignLeft size={14} />,     title: 'Left' },
-    { cmd: 'justifyCenter', icon: <AlignCenter size={14} />,   title: 'Center' },
-    { cmd: 'justifyRight',  icon: <AlignRight size={14} />,    title: 'Right' },
-    { cmd: 'insertUnorderedList', icon: <List size={14} />,    title: 'List' },
-    { cmd: 'book',          icon: <Book size={14} />,          title: 'Notebook Font' },
-    { cmd: 'pen',           icon: <PenTool size={14} />,       title: 'Pen (Blue Text)' },
-    { cmd: 'pencil',        icon: <Pencil size={14} />,        title: 'Pencil (Highlight)' },
-    { cmd: 'eraser',        icon: <Eraser size={14} />,        title: 'Eraser (Clear Format)' },
-  ];
+  const ToolBtn = ({ id, icon: Icon, label, disabled, onClick }) => (
+    <button 
+      className={`w-full flex flex-col items-center justify-center gap-1 p-3 rounded-lg transition-colors ${activeTool === id ? 'bg-blue-50 text-blue-600 shadow-sm border border-blue-100' : 'text-gray-600 hover:bg-gray-100'} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+      onClick={(e) => {
+        e.preventDefault();
+        if (disabled) return;
+        if (onClick) onClick();
+        setActiveTool(id);
+      }}
+      title={label}
+    >
+      <Icon size={22} strokeWidth={activeTool === id ? 2.5 : 2} />
+      <span className="text-[10px] font-medium hidden md:block text-center">{label}</span>
+    </button>
+  );
 
   return (
-    <div style={{ border: '1px solid rgba(0,0,0,0.1)', borderRadius: 20, overflow: 'hidden', background: 'white' }}>
-      {/* Toolbar */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '8px 12px', borderBottom: '1px solid rgba(0,0,0,0.05)', flexWrap: 'wrap', background: '#f8f9fa' }}>
-        {toolbarBtns.map(btn => (
-          <button
-            key={btn.cmd}
-            title={btn.title}
-            onMouseDown={e => { 
-              e.preventDefault(); 
-              if (btn.cmd === 'pen') execCmd('foreColor', '#3b82f6');
-              else if (btn.cmd === 'pencil') execCmd('hiliteColor', '#fef08a');
-              else if (btn.cmd === 'eraser') execCmd('removeFormat');
-              else if (btn.cmd === 'book') execCmd('fontName', 'Comic Sans MS');
-              else execCmd(btn.cmd); 
-            }}
-            style={{
-              padding: '5px 8px', borderRadius: 6, border: '1px solid transparent',
-              background: activeFormats.includes(btn.cmd) ? 'rgba(108,99,255,0.1)' : 'transparent',
-              color: activeFormats.includes(btn.cmd) ? '#6C63FF' : '#555',
-              cursor: 'pointer', display: 'flex', alignItems: 'center',
-              transition: '0.15s ease',
-            }}
-          >{btn.icon}</button>
-        ))}
-        
-        <button
-          title="Add Meaning"
-          onMouseDown={e => {
-            e.preventDefault();
+    <div className="flex h-[85vh] border border-gray-200 rounded-2xl overflow-hidden bg-gray-50 text-gray-800 shadow-xl font-sans w-full">
+      
+      {/* Left Sidebar Toolbar */}
+      <div className="w-20 md:w-24 bg-white border-r border-gray-200 flex flex-col items-center py-4 gap-2 z-20 shadow-sm overflow-y-auto shrink-0">
+        <ToolBtn id="text" icon={Type} label="Text" onClick={() => execCmd('removeFormat')} />
+        <div className="w-12 h-[1px] bg-gray-100 my-1 shrink-0" />
+        <ToolBtn id="pen" icon={PenTool} label="Pen" onClick={() => execCmd('foreColor', '#3b82f6')} />
+        <ToolBtn id="pencil" icon={Pencil} label="Highlight" onClick={() => execCmd('hiliteColor', '#fef08a')} />
+        <ToolBtn id="eraser" icon={Eraser} label="Eraser" onClick={() => execCmd('removeFormat')} />
+        <div className="w-12 h-[1px] bg-gray-100 my-1 shrink-0" />
+        <ToolBtn id="meaning" icon={Book} label="Add Meaning" onClick={() => {
             const sel = window.getSelection();
             if (sel.rangeCount > 0) setSavedRange(sel.getRangeAt(0));
             setShowMeaningPopup(true);
-          }}
-          style={{
-            padding: '2px 6px', borderRadius: 6, border: '1px solid rgba(0,0,0,0.1)',
-            background: 'white', color: '#555',
-            cursor: 'pointer', display: 'flex', alignItems: 'center', fontSize: 13, fontWeight: 'bold'
-          }}
-        >**</button>
+        }} />
+        <ToolBtn id="list" icon={List} label="List" onClick={() => execCmd('insertUnorderedList')} />
+      </div>
 
-        <div style={{ width: 1, height: 20, background: 'rgba(0,0,0,0.1)', margin: '0 4px' }} />
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          <Type size={13} color="#555" />
-          <select
-            value={fontSize}
-            onChange={e => { setFontSize(+e.target.value); execCmd('fontSize', '3'); }}
-            style={{ background: 'white', border: '1px solid rgba(0,0,0,0.1)', color: '#333', fontSize: 12, borderRadius: 4, padding: '2px 4px' }}
-          >
-            {[12,14,16,18,20,24,28,32].map(s => <option key={s} value={s}>{s}px</option>)}
-          </select>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          <Palette size={13} color="#555" />
-          <input type="color" defaultValue="#F0F0FF" onInput={e => execCmd('foreColor', e.target.value)}
-            style={{ width: 24, height: 24, border: 'none', borderRadius: 4, cursor: 'pointer', background: 'none' }} />
+      {/* Center Document Workspace */}
+      <div className="flex-1 flex flex-col relative overflow-hidden bg-gray-100/50">
+        <div className="flex-1 overflow-auto flex justify-center py-10 px-4">
+          
+          <div className="bg-white shadow-2xl rounded-sm w-full max-w-[800px] min-h-[1056px] relative flex flex-col border border-gray-200">
+             {/* Editor area - simulating an A4 page */}
+             <div
+               ref={editorRef}
+               contentEditable={true}
+               suppressContentEditableWarning
+               onInput={e => {
+                 isInternalChange.current = true;
+                 if (onChange) onChange(e.currentTarget.innerHTML);
+               }}
+               data-placeholder={placeholder}
+               className="flex-1 outline-none p-12 text-[#111] leading-relaxed cursor-text"
+               style={{
+                 fontSize: `${fontSize}px`,
+                 fontFamily: 'Inter, sans-serif',
+                 userSelect: 'text',
+                 pointerEvents: 'auto',
+                 minHeight: '100%',
+               }}
+             />
+          </div>
         </div>
       </div>
 
-      {/* Editor area */}
-      <div
-        contentEditable
-        suppressContentEditableWarning
-        onInput={e => onChange && onChange(e.currentTarget.innerHTML)}
-        data-placeholder={placeholder}
-        style={{
-          minHeight, padding: '16px', outline: 'none',
-          color: '#111', fontSize: 15, lineHeight: 1.7,
-          fontFamily: 'Inter, sans-serif',
-        }}
-        dangerouslySetInnerHTML={value !== undefined ? { __html: value } : undefined}
-      />
+      {/* Right Sidebar Properties Panel */}
+      <div className="w-64 bg-white border-l border-gray-200 flex flex-col p-5 gap-6 z-20 shadow-sm shrink-0 overflow-y-auto">
+         <div>
+            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Properties</h3>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-gray-700">Color</span>
+            </div>
+            <div className="grid grid-cols-5 gap-2">
+              {COLORS.map(c => (
+                <button 
+                  key={c} 
+                  onMouseDown={(e) => { e.preventDefault(); handleColorChange(c); }} 
+                  className="w-8 h-8 rounded-full border border-gray-200 shadow-sm transition-transform hover:scale-110" 
+                  style={{ backgroundColor: c, ringColor: selectedColor === c ? '#3b82f6' : 'transparent', ringWidth: selectedColor === c ? '2px' : '0' }} 
+                />
+              ))}
+            </div>
+         </div>
 
-      {/* Emoji row */}
-      {showEmoji && (
-        <div style={{ padding: '8px 12px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-          {EMOJIS.map(e => (
-            <button key={e} onMouseDown={ev => { ev.preventDefault(); insertEmoji(e); }}
-              className="emoji-chip">{e}</button>
-          ))}
-        </div>
-      )}
+         <div className="h-[1px] w-full bg-gray-100" />
+         
+         <div>
+            <span className="text-sm font-medium text-gray-700 mb-2 block">Typography</span>
+            <div className="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-lg p-1 mb-2">
+              <button onMouseDown={e => { e.preventDefault(); execCmd('bold'); }} className={`flex-1 p-2 rounded ${activeFormats.includes('bold') ? 'bg-white shadow-sm font-bold text-blue-600' : 'text-gray-500 hover:text-gray-800'}`}>B</button>
+              <button onMouseDown={e => { e.preventDefault(); execCmd('italic'); }} className={`flex-1 p-2 rounded italic ${activeFormats.includes('italic') ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500 hover:text-gray-800'}`}>I</button>
+              <button onMouseDown={e => { e.preventDefault(); execCmd('underline'); }} className={`flex-1 p-2 rounded underline ${activeFormats.includes('underline') ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500 hover:text-gray-800'}`}>U</button>
+            </div>
+            <div className="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-lg p-1">
+              <button onMouseDown={e => { e.preventDefault(); execCmd('justifyLeft'); }} className={`flex-1 p-2 flex justify-center rounded ${activeFormats.includes('justifyLeft') ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500 hover:text-gray-800'}`}><AlignLeft size={16} /></button>
+              <button onMouseDown={e => { e.preventDefault(); execCmd('justifyCenter'); }} className={`flex-1 p-2 flex justify-center rounded ${activeFormats.includes('justifyCenter') ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500 hover:text-gray-800'}`}><AlignCenter size={16} /></button>
+              <button onMouseDown={e => { e.preventDefault(); execCmd('justifyRight'); }} className={`flex-1 p-2 flex justify-center rounded ${activeFormats.includes('justifyRight') ? 'bg-white shadow-sm text-gray-800' : 'text-gray-500 hover:text-gray-800'}`}><AlignRight size={16} /></button>
+            </div>
+         </div>
+         
+         <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-700">Font Size</span>
+            <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
+              <button onClick={() => setFontSize(Math.max(8, fontSize - 2))} className="p-1 hover:bg-gray-100 bg-gray-50 text-gray-600 w-8">-</button>
+              <input type="number" value={fontSize} onChange={e => setFontSize(Number(e.target.value))} className="w-10 text-center text-sm outline-none border-x border-gray-200 text-gray-700" />
+              <button onClick={() => setFontSize(fontSize + 2)} className="p-1 hover:bg-gray-100 bg-gray-50 text-gray-600 w-8">+</button>
+            </div>
+         </div>
+
+         {showEmoji && (
+           <>
+             <div className="h-[1px] w-full bg-gray-100" />
+             <div>
+                <span className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2"><SmilePlus size={16} /> Emojis</span>
+                <div className="grid grid-cols-4 gap-2">
+                  {EMOJIS.map(e => (
+                    <button key={e} onMouseDown={ev => { ev.preventDefault(); insertEmoji(e); }} className="text-xl hover:bg-gray-100 rounded p-1 transition-colors">{e}</button>
+                  ))}
+                </div>
+             </div>
+           </>
+         )}
+      </div>
 
       {showMeaningPopup && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, backdropFilter: 'blur(4px)' }}>
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} style={{ background: '#13132B', padding: 32, borderRadius: 20, width: 400, border: '1px solid rgba(139, 92, 246, 0.5)', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}>
-            <h3 style={{ marginBottom: 16, fontSize: 20, color: '#fff' }}>Add Custom Meaning</h3>
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[9999] backdrop-blur-sm">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-[#13132B] p-8 rounded-2xl w-[400px] border border-purple-500/50 shadow-2xl">
+            <h3 className="mb-4 text-xl text-white font-bold">Add Custom Meaning</h3>
             
-            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14, marginBottom: 8 }}>Enter symbol (e.g. *, **, ***):</p>
+            <p className="text-white/60 text-sm mb-2">Enter symbol (e.g. *, **, ***):</p>
             <input 
               value={symbolInput}
               onChange={e => setSymbolInput(e.target.value)}
               placeholder="e.g. **"
-              style={{ width: '100%', padding: '14px 20px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)', color: '#fff', fontSize: 15, marginBottom: 16, outline: 'none' }} 
+              className="w-full p-3 rounded-xl border border-white/10 bg-white/5 text-white text-sm mb-4 outline-none focus:border-purple-500 transition-colors"
             />
 
-            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14, marginBottom: 8 }}>Enter meaning or reason:</p>
+            <p className="text-white/60 text-sm mb-2">Enter meaning or reason:</p>
             <input 
               autoFocus
               value={meaningInput}
@@ -143,7 +202,11 @@ export default function RichEditor({ value, onChange, placeholder = 'Start writi
                     sel.removeAllRanges();
                     sel.addRange(savedRange);
                   }
-                  if (meaningInput && symbolInput) {
+                  const selectedText = savedRange ? savedRange.toString() : '';
+                  
+                  if (selectedText) {
+                    document.execCommand('insertText', false, `${symbolInput}${selectedText}${symbolInput}`);
+                  } else if (meaningInput && symbolInput) {
                     document.execCommand('insertText', false, ` ${symbolInput} (Meaning: ${meaningInput}) `);
                   }
                   setShowMeaningPopup(false);
@@ -152,23 +215,27 @@ export default function RichEditor({ value, onChange, placeholder = 'Start writi
                 }
               }}
               placeholder="e.g. Very important..."
-              style={{ width: '100%', padding: '14px 20px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)', color: '#fff', fontSize: 15, marginBottom: 24, outline: 'none' }} 
+              className="w-full p-3 rounded-xl border border-white/10 bg-white/5 text-white text-sm mb-6 outline-none focus:border-purple-500 transition-colors"
             />
-            <div style={{ display: 'flex', gap: 12 }}>
-              <button className="btn" onClick={() => { setShowMeaningPopup(false); setMeaningInput(''); setSymbolInput('**'); }} style={{ flex: 1, padding: 14, background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, justifyContent: 'center' }}>Cancel</button>
-              <button className="btn" onClick={() => {
+            <div className="flex gap-3">
+              <button className="flex-1 p-3 bg-white/5 text-white border border-white/10 rounded-xl hover:bg-white/10 transition-colors font-medium" onClick={() => { setShowMeaningPopup(false); setMeaningInput(''); setSymbolInput('**'); }}>Cancel</button>
+              <button className="flex-1 p-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors font-semibold" onClick={() => {
                 if (savedRange) {
                   const sel = window.getSelection();
                   sel.removeAllRanges();
                   sel.addRange(savedRange);
                 }
-                if (meaningInput && symbolInput) {
+                const selectedText = savedRange ? savedRange.toString() : '';
+                
+                if (selectedText) {
+                  document.execCommand('insertText', false, `${symbolInput}${selectedText}${symbolInput}`);
+                } else if (meaningInput && symbolInput) {
                   document.execCommand('insertText', false, ` ${symbolInput} (Meaning: ${meaningInput}) `);
                 }
                 setShowMeaningPopup(false);
                 setMeaningInput('');
                 setSymbolInput('**');
-              }} style={{ flex: 1, padding: 14, background: '#8B5CF6', color: '#fff', border: 'none', borderRadius: 12, fontWeight: 600, justifyContent: 'center' }}>Insert</button>
+              }}>Insert</button>
             </div>
           </motion.div>
         </div>

@@ -1,14 +1,24 @@
 import { useState } from 'react';
+import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { saveAs } from 'file-saver';
 import RichEditor from '../components/RichEditor';
 import { showToast } from '../components/Toast';
 import { Download, Merge, Scissors } from 'lucide-react';
 
-const TABS = ['Edit / Create', 'Merge Docs', 'Split Doc', 'Convert'];
+const TOOLS = [
+  { id: 0, action: 'edit', title: 'Edit / Create', desc: 'Write rich text docs', icon: '📝', color: '#00FFB3' },
+  { id: 1, action: 'merge', title: 'Merge Docs', desc: 'Combine documents', icon: '🔗', color: '#8B5CF6' },
+  { id: 2, action: 'split', title: 'Split Doc', desc: 'Divide paragraphs', icon: '✂️', color: '#FF6B9D' },
+  { id: 3, action: 'convert', title: 'Convert Doc', desc: 'Export formats', icon: '🔄', color: '#00D9FF' },
+];
 
 export default function DocsTools() {
-  const [tab, setTab] = useState(0);
+  const { action } = useParams();
+  const navigate = useNavigate();
+
+  const activeTool = action ? TOOLS.find(t => t.action === action)?.id ?? null : null;
+
   const [content, setContent] = useState('');
   const [docs, setDocs] = useState([{ id: 1, title: 'Untitled Doc', content: '' }]);
   const [activeDoc, setActiveDoc] = useState(0);
@@ -65,30 +75,49 @@ export default function DocsTools() {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
         <div className="page-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-            <span style={{ fontSize: 40 }}>📃</span>
+            <span style={{ fontSize: 40 }}>{activeTool !== null ? TOOLS[activeTool].icon : '📃'}</span>
             <div>
-              <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 32, fontWeight: 800 }}>Docs Tools</h1>
-              <p style={{ color: 'rgba(240,240,255,0.5)', fontSize: 15 }}>Create, Edit, Merge, Split & Convert documents</p>
+              <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 32, fontWeight: 800 }}>
+                {activeTool !== null ? TOOLS[activeTool].title : 'Docs Tools'}
+              </h1>
+              <p style={{ color: 'rgba(240,240,255,0.5)', fontSize: 15 }}>
+                {activeTool !== null ? TOOLS[activeTool].desc : 'Create, Edit, Merge, Split & Convert documents'}
+              </p>
             </div>
           </div>
           <div className="badge" style={{ background: 'white', color: '#00FFB3', border: '1px solid #00FFB3' }}>Docs Suite</div>
         </div>
 
-        <div className="tabs">
-          {TABS.map((t, i) => (
+        {activeTool === null ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-6 w-full">
+            {TOOLS.map((tool) => (
+              <motion.div
+                key={tool.id}
+                whileHover={{ y: -4 }}
+                onClick={() => navigate('/docs/' + tool.action)}
+                className="bg-white/5 border rounded-2xl p-6 cursor-pointer flex flex-col gap-3 relative overflow-hidden transition-colors hover:border-white/20"
+                style={{ borderColor: `${tool.color}30` }}
+              >
+                <div className="absolute -top-5 -right-5 text-[80px] opacity-5 pointer-events-none">{tool.icon}</div>
+                <div className="text-3xl">{tool.icon}</div>
+                <div>
+                  <h3 className="text-lg font-bold mb-1" style={{ color: tool.color }}>{tool.title}</h3>
+                  <p className="text-[13px] text-white/50">{tool.desc}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="section" style={{ marginTop: 24 }}>
             <button 
-              key={i} 
-              className={`tab ${tab === i ? 'active' : ''}`} 
-              onClick={() => setTab(i)}
-              style={tab === i ? { background: toolColor, color: '#fff', boxShadow: `0 2px 12px ${toolColor}66` } : { color: toolColor }}
+              onClick={() => navigate('/docs')}
+              style={{ background: 'transparent', border: 'none', color: 'rgba(240,240,255,0.6)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 20, fontSize: 14 }}
             >
-              {t}
+              ← Back to Tools
             </button>
-          ))}
-        </div>
 
-        {tab === 0 && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            {activeTool === 0 && (
+              <div className="tool-content">
             {/* Doc tabs */}
             <div style={{ display: 'flex', gap: 8, marginBottom: 16, overflowX: 'auto' }}>
               {docs.map((d, i) => (
@@ -122,11 +151,11 @@ export default function DocsTools() {
               <button className="btn btn-secondary" onClick={() => exportAs('txt')}><Download size={15} /> Export .txt</button>
               <button className="btn btn-secondary" onClick={() => exportAs('pdf')}>Export Concept</button>
             </div>
-          </motion.div>
-        )}
+              </div>
+            )}
 
-        {tab === 1 && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="section">
+            {activeTool === 1 && (
+              <div className="tool-content">
             <div className="card" style={{ padding: 24, marginBottom: 16 }}>
               <p style={{ color: 'rgba(240,240,255,0.6)', marginBottom: 16, fontSize: 14 }}>
                 You have <strong style={{ color: toolColor }}>{docs.length} document(s)</strong> in your workspace. Click "Merge All" to combine them into one file.
@@ -139,11 +168,11 @@ export default function DocsTools() {
               ))}
             </div>
             <button className="btn btn-primary" onClick={handleMerge}><Merge size={15} /> Merge All Documents</button>
-          </motion.div>
-        )}
+              </div>
+            )}
 
-        {tab === 2 && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="section">
+            {activeTool === 2 && (
+              <div className="tool-content">
             <div className="card" style={{ padding: 24, marginBottom: 16 }}>
               <p style={{ fontSize: 14, color: 'rgba(240,240,255,0.6)', marginBottom: 16 }}>
                 Split active document: <strong style={{ color: toolColor }}>{docs[activeDoc]?.title}</strong>
@@ -151,11 +180,11 @@ export default function DocsTools() {
               <p style={{ fontSize: 13, color: 'rgba(240,240,255,0.4)' }}>Document will be split into 2 equal parts by paragraphs.</p>
             </div>
             <button className="btn btn-primary" onClick={handleSplit}><Scissors size={15} /> Split Document</button>
-          </motion.div>
-        )}
+              </div>
+            )}
 
-        {tab === 3 && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="section">
+            {activeTool === 3 && (
+              <div className="tool-content">
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
               {[
                 { label: 'Export → Word (.docx concept)', emoji: '📝', color: '#00D9FF', format: 'html' },
@@ -169,6 +198,8 @@ export default function DocsTools() {
                 </motion.div>
               ))}
             </div>
+              </div>
+            )}
           </motion.div>
         )}
       </motion.div>

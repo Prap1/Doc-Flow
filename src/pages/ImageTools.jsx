@@ -1,14 +1,24 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { saveAs } from 'file-saver';
 import FileDropzone from '../components/FileDropzone';
 import { showToast } from '../components/Toast';
 import { Download, Trash2, Merge, Scissors, RotateCw, FlipHorizontal, Sun, Contrast, ZoomIn, ZoomOut } from 'lucide-react';
 
-const TABS = ['Edit Image', 'Merge Images', 'Split / Crop'];
+const TOOLS = [
+  { id: 0, action: 'edit', title: 'Edit Image', desc: 'Filters, crop & rotate', icon: '🎨', color: '#A855F7' },
+  { id: 1, action: 'merge', title: 'Merge Images', desc: 'Combine horizontally', icon: '🔗', color: '#8B5CF6' },
+  { id: 2, action: 'split', title: 'Split Image', desc: 'Divide into halves', icon: '✂️', color: '#FF6B9D' },
+];
 
 export default function ImageTools() {
-  const [tab, setTab] = useState(0);
+  const location = useLocation();
+  const { action } = useParams();
+  const navigate = useNavigate();
+
+  const activeTool = action ? TOOLS.find(t => t.action === action)?.id ?? null : null;
+
   const [image, setImage] = useState(null);
   const [imgUrl, setImgUrl] = useState(null);
   const [filters, setFilters] = useState({ brightness: 100, contrast: 100, saturate: 100, blur: 0, sepia: 0, grayscale: 0, hueRotate: 0 });
@@ -25,6 +35,14 @@ export default function ImageTools() {
     setFilters({ brightness: 100, contrast: 100, saturate: 100, blur: 0, sepia: 0, grayscale: 0, hueRotate: 0 });
     setRotation(0); setFlip(false); setScale(1);
   };
+
+  useEffect(() => {
+    if (location.state?.importedFile) {
+      loadImage(location.state.importedFile);
+      navigate('/image/edit');
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   const filterStr = `brightness(${filters.brightness}%) contrast(${filters.contrast}%) saturate(${filters.saturate}%) blur(${filters.blur}px) sepia(${filters.sepia}%) grayscale(${filters.grayscale}%) hue-rotate(${filters.hueRotate}deg)`;
 
@@ -111,31 +129,50 @@ export default function ImageTools() {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
         <div className="page-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-            <span style={{ fontSize: 40 }}>🖼️</span>
+            <span style={{ fontSize: 40 }}>{activeTool !== null ? TOOLS[activeTool].icon : '🖼️'}</span>
             <div>
-              <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 32, fontWeight: 800 }}>Image Tools</h1>
-              <p style={{ color: 'rgba(240,240,255,0.5)', fontSize: 15 }}>Edit, Merge & Split your images</p>
+              <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 32, fontWeight: 800 }}>
+                {activeTool !== null ? TOOLS[activeTool].title : 'Image Tools'}
+              </h1>
+              <p style={{ color: 'rgba(240,240,255,0.5)', fontSize: 15 }}>
+                {activeTool !== null ? TOOLS[activeTool].desc : 'Edit, Merge & Split your images'}
+              </p>
             </div>
           </div>
           <div className="badge" style={{ background: 'white', color: toolColor, border: `1px solid ${toolColor}` }}>IMG Suite</div>
         </div>
 
-        <div className="tabs">
-          {TABS.map((t, i) => (
+        {activeTool === null ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-6 w-full">
+            {TOOLS.map((tool) => (
+              <motion.div
+                key={tool.id}
+                whileHover={{ y: -4 }}
+                onClick={() => navigate('/image/' + tool.action)}
+                className="bg-white/5 border rounded-2xl p-6 cursor-pointer flex flex-col gap-3 relative overflow-hidden transition-colors hover:border-white/20"
+                style={{ borderColor: `${tool.color}30` }}
+              >
+                <div className="absolute -top-5 -right-5 text-[80px] opacity-5 pointer-events-none">{tool.icon}</div>
+                <div className="text-3xl">{tool.icon}</div>
+                <div>
+                  <h3 className="text-lg font-bold mb-1" style={{ color: tool.color }}>{tool.title}</h3>
+                  <p className="text-[13px] text-white/50">{tool.desc}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="section" style={{ marginTop: 24 }}>
             <button 
-              key={i} 
-              className={`tab ${tab === i ? 'active' : ''}`} 
-              onClick={() => setTab(i)}
-              style={tab === i ? { background: toolColor, color: '#fff', boxShadow: `0 2px 12px ${toolColor}66` } : { color: toolColor }}
+              onClick={() => { navigate('/image'); setImgUrl(null); setImage(null); setMergeImages([]); }}
+              style={{ background: 'transparent', border: 'none', color: 'rgba(240,240,255,0.6)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 20, fontSize: 14 }}
             >
-              {t}
+              ← Back to Tools
             </button>
-          ))}
-        </div>
 
-        {/* Edit */}
-        {tab === 0 && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            {/* Edit */}
+            {activeTool === 0 && (
+              <div className="tool-content">
             {!imgUrl ? (
               <FileDropzone onFiles={f => loadImage(f[0])}
                 accept={{ 'image/*': ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp'] }}
@@ -198,12 +235,12 @@ export default function ImageTools() {
                 </div>
               </div>
             )}
-          </motion.div>
-        )}
+              </div>
+            )}
 
-        {/* Merge */}
-        {tab === 1 && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="section">
+            {/* Merge */}
+            {activeTool === 1 && (
+              <div className="tool-content">
             <FileDropzone onFiles={f => setMergeImages(p => [...p, ...f.map(fi => URL.createObjectURL(fi))])}
               accept={{ 'image/*': ['.jpg', '.jpeg', '.png', '.webp'] }}
               label="Add images to merge (stitch side by side)" icon="🖼️" color={toolColor} />
@@ -224,12 +261,12 @@ export default function ImageTools() {
                 </div>
               </motion.div>
             )}
-          </motion.div>
-        )}
+              </div>
+            )}
 
-        {/* Split */}
-        {tab === 2 && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="section">
+            {/* Split */}
+            {activeTool === 2 && (
+              <div className="tool-content">
             {!imgUrl ? (
               <FileDropzone onFiles={f => loadImage(f[0])}
                 accept={{ 'image/*': ['.jpg', '.jpeg', '.png', '.webp'] }}
@@ -245,6 +282,8 @@ export default function ImageTools() {
                   <button className="btn btn-secondary" onClick={() => { setImgUrl(null); setImage(null); }}><Trash2 size={13} /> Remove</button>
                 </div>
               </motion.div>
+            )}
+              </div>
             )}
           </motion.div>
         )}
