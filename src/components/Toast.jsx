@@ -1,5 +1,4 @@
 import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
 export function showToast(message, type = 'success') {
   if (type === 'success') {

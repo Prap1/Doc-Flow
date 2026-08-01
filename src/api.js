@@ -208,6 +208,16 @@ export function getVoiceUrl(postId) {
   return `${BASE}/posts/${postId}/voice`;
 }
 
+// ── WhatsApp Export ──────────────────────────────────────────
+export async function uploadWhatsAppChat(formData) {
+  const res = await handleResponse(await fetch(`${BASE}/wa/upload`, {
+    method: 'POST',
+    headers: { 'Accept': 'application/json' },
+    body: formData,
+  }));
+  return res.json();
+}
+
 // ── Utility: download blob ────────────────────────────────────
 export function downloadBlob(blob, filename) {
   const url = URL.createObjectURL(blob);

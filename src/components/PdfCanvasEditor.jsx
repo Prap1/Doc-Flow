@@ -1,11 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
-import 'react-pdf/dist/Page/AnnotationLayer.css';
-import 'react-pdf/dist/Page/TextLayer.css';
 import { 
   Undo, Redo, MousePointer2, FileEdit, PenLine, Type, Eraser, Highlighter, 
   Image as ImageIcon, MoveUpRight, PenTool, X, Check,
-  Bold, Italic, Underline, Trash2, AlignLeft, AlignCenter, AlignRight, AlignJustify, Download
+  Bold, Italic, Underline, Trash2, AlignLeft, AlignCenter, AlignRight, AlignJustify, 
+  Download, ZoomIn, ZoomOut, RotateCcw
 } from 'lucide-react';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import { saveAs } from 'file-saver';
@@ -20,12 +19,40 @@ const COLORS = [
   '#59C1FF', '#4579FF', '#7C4DFF', '#000000', '#FFFFFF'
 ];
 
+// Offscreen canvas used to measure text the same way pdf-lib's Helvetica will render it,
+// so on-screen text boxes match the saved PDF instead of guessing width from character count.
+let _measureCanvas;
+function measureTextWidth(text, fontSize, bold, italic) {
+  if (!_measureCanvas) _measureCanvas = document.createElement('canvas');
+  const ctx = _measureCanvas.getContext('2d');
+  ctx.font = `${italic ? 'italic ' : ''}${bold ? 'bold ' : ''}${fontSize || 16}px Helvetica, Arial, sans-serif`;
+  return ctx.measureText(text && text.length ? text : ' ').width;
+}
+
+// When zoom changes (or the page re-renders at a different size) every placed element's
+// pixel coordinates need to scale with it, or annotations drift off the content they mark.
+function scaleElementCoords(el, ratio) {
+  const scaled = { ...el };
+  ['x', 'y', 'width', 'height', 'startX', 'startY', 'endX', 'endY', 'size', 'canvasWidth', 'canvasHeight'].forEach(k => {
+    if (typeof scaled[k] === 'number') scaled[k] = scaled[k] * ratio;
+  });
+  if (scaled.originalRect) {
+    scaled.originalRect = {
+      x: scaled.originalRect.x * ratio, y: scaled.originalRect.y * ratio,
+      width: scaled.originalRect.width * ratio, height: scaled.originalRect.height * ratio,
+    };
+  }
+  if (scaled.path) scaled.path = scaled.path.map(p => ({ x: p.x * ratio, y: p.y * ratio }));
+  return scaled;
+}
+
 export default function PdfCanvasEditor({ file, onCancel }) {
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
   const [activeTool, setActiveTool] = useState('selection');
   const [selectedColor, setSelectedColor] = useState('#FFD56F');
   const [selectedOpacity, setSelectedOpacity] = useState(0.5);
+  const [zoom, setZoom] = useState(1);
   
   const [textSize, setTextSize] = useState(16);
   const [isBold, setIsBold] = useState(false);
@@ -39,6 +66,7 @@ export default function PdfCanvasEditor({ file, onCancel }) {
 
   const canvasRef = useRef(null);
   const elementsRef = useRef([]);
+  const prevCanvasWidthRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [currentPath, setCurrentPath] = useState([]);
   const [startPoint, setStartPoint] = useState(null);
@@ -49,7 +77,30 @@ export default function PdfCanvasEditor({ file, onCancel }) {
   const fileInputRef = useRef(null);
   const [pendingImage, setPendingImage] = useState(null);
 
+  // Signature pad state
+  const [showSignatureModal, setShowSignatureModal] = useState(false);
+  const sigCanvasRef = useRef(null);
+  const sigDrawingRef = useRef(false);
+  const sigLastPointRef = useRef(null);
+
   function onDocumentLoadSuccess({ numPages }) { setNumPages(numPages); }
+
+  // Keep placed annotations glued to the content they mark when zoom or page size changes.
+  const handlePageRenderSuccess = () => {
+    const canvasEl = canvasRef.current;
+    if (!canvasEl) return;
+    const newWidth = canvasEl.getBoundingClientRect().width;
+    const prevWidth = prevCanvasWidthRef.current;
+    if (prevWidth && Math.abs(newWidth - prevWidth) > 1) {
+      const ratio = newWidth / prevWidth;
+      setElements(prev => {
+        const scaled = prev.map(el => scaleElementCoords(el, ratio));
+        elementsRef.current = scaled;
+        return scaled;
+      });
+    }
+    prevCanvasWidthRef.current = newWidth;
+  };
 
   useEffect(() => {
     const wrapper = canvasRef.current?.parentElement;
@@ -86,6 +137,8 @@ export default function PdfCanvasEditor({ file, onCancel }) {
     return () => wrapper.removeEventListener('click', handleDelegatedClick);
   }, [activeTool, elements, pageNumber, history, historyIndex]);
 
+  // Text layer interactivity per tool. 'highlight' now behaves like 'selection' (native text
+  // selection) so highlighting can grab real text instead of a blind rectangle drag.
   useEffect(() => {
     const styleId = 'pdf-edit-mode-styles';
     let styleEl = document.getElementById(styleId);
@@ -101,7 +154,7 @@ export default function PdfCanvasEditor({ file, onCancel }) {
         .react-pdf__Page__textContent span { cursor: text !important; }
         .react-pdf__Page__textContent span:hover { background-color: rgba(0, 120, 255, 0.1) !important; outline: 1px dashed blue; }
       `;
-    } else if (activeTool === 'selection') {
+    } else if (activeTool === 'selection' || activeTool === 'highlight') {
       styleEl.innerHTML = `
         .react-pdf__Page__textContent { pointer-events: auto !important; user-select: text !important; }
         .react-pdf__Page__textContent span { cursor: text !important; user-select: text !important; }
@@ -143,6 +196,61 @@ export default function PdfCanvasEditor({ file, onCancel }) {
     observer.observe(textLayerContainer, { childList: true, subtree: true });
     return () => observer.disconnect();
   }, [elements.filter(el => el.page === pageNumber && el.isReplacement).length, pageNumber]);
+
+  // Real text-selection highlighting: select text with the mouse while the Highlight tool is
+  // active, and on release turn the selection's line rects into highlight boxes.
+  useEffect(() => {
+    if (activeTool !== 'highlight') return;
+    const handleMouseUp = () => {
+      const selection = window.getSelection();
+      if (!selection || selection.isCollapsed || selection.rangeCount === 0) return;
+      const range = selection.getRangeAt(0);
+      const rects = Array.from(range.getClientRects()).filter(r => r.width > 1 && r.height > 1);
+      if (rects.length === 0) return;
+      const canvasRect = canvasRef.current.getBoundingClientRect();
+      const newHighlights = rects.map(r => ({
+        id: Date.now() + Math.random(),
+        type: 'highlight',
+        startX: r.left - canvasRect.left,
+        startY: r.top - canvasRect.top,
+        endX: r.right - canvasRect.left,
+        endY: r.bottom - canvasRect.top,
+        page: pageNumber,
+        color: selectedColor,
+        opacity: selectedOpacity,
+        canvasWidth: canvasRect.width,
+        canvasHeight: canvasRect.height,
+      }));
+      saveHistory([...elements, ...newHighlights]);
+      selection.removeAllRanges();
+    };
+    document.addEventListener('mouseup', handleMouseUp);
+    return () => document.removeEventListener('mouseup', handleMouseUp);
+  }, [activeTool, elements, pageNumber, selectedColor, selectedOpacity, history, historyIndex]);
+
+  // Keyboard shortcuts: Delete/Backspace removes the selected element, Escape deselects,
+  // Ctrl/Cmd+Z undoes, Ctrl/Cmd+Shift+Z or Ctrl/Cmd+Y redoes.
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const tag = e.target.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedElementId != null) {
+        e.preventDefault();
+        deleteElement(selectedElementId);
+      } else if (e.key === 'Escape') {
+        setSelectedElementId(null);
+        setActiveTool('selection');
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+        e.preventDefault();
+        if (e.shiftKey) handleRedo(); else handleUndo();
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
+        e.preventDefault();
+        handleRedo();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedElementId, elements, history, historyIndex]);
 
   const saveHistory = (newElements) => {
     const newHistory = history.slice(0, historyIndex + 1);
@@ -197,10 +305,10 @@ export default function PdfCanvasEditor({ file, onCancel }) {
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    if (activeTool === 'draw' || activeTool === 'sign') {
+    if (activeTool === 'draw') {
       setIsDrawing(true);
       setCurrentPath([{ x, y }]);
-    } else if (activeTool === 'arrow' || activeTool === 'highlight') {
+    } else if (activeTool === 'arrow') {
       setIsDrawing(true);
       setStartPoint({ x, y });
     } else if (activeTool === 'erase') {
@@ -275,9 +383,9 @@ export default function PdfCanvasEditor({ file, onCancel }) {
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    if (activeTool === 'draw' || activeTool === 'sign') {
+    if (activeTool === 'draw') {
       setCurrentPath([...currentPath, { x, y }]);
-    } else if (activeTool === 'highlight' || activeTool === 'arrow') {
+    } else if (activeTool === 'arrow') {
       setCurrentPath([{ x: startPoint.x, y: startPoint.y }, { x, y }]);
     }
   };
@@ -286,21 +394,15 @@ export default function PdfCanvasEditor({ file, onCancel }) {
     if (!isDrawing) return;
     setIsDrawing(false);
 
-    if ((activeTool === 'draw' || activeTool === 'sign') && currentPath.length > 1) {
+    if (activeTool === 'draw' && currentPath.length > 1) {
       saveHistory([...elements, { 
-        id: Date.now(), type: activeTool, path: currentPath, page: pageNumber, color: activeTool === 'sign' ? '#000000' : selectedColor,
+        id: Date.now(), type: 'draw', path: currentPath, page: pageNumber, color: selectedColor,
         canvasWidth: canvasRef.current?.getBoundingClientRect().width, canvasHeight: canvasRef.current?.getBoundingClientRect().height,
       }]);
     } else if (activeTool === 'arrow' && currentPath.length === 2) {
       saveHistory([...elements, { 
         id: Date.now(), type: 'arrow', startX: currentPath[0].x, startY: currentPath[0].y, endX: currentPath[1].x, endY: currentPath[1].y,
         page: pageNumber, color: selectedColor,
-        canvasWidth: canvasRef.current?.getBoundingClientRect().width, canvasHeight: canvasRef.current?.getBoundingClientRect().height,
-      }]);
-    } else if (activeTool === 'highlight' && currentPath.length === 2) {
-      saveHistory([...elements, { 
-        id: Date.now(), type: 'highlight', startX: currentPath[0].x, startY: currentPath[0].y, endX: currentPath[1].x, endY: currentPath[1].y,
-        page: pageNumber, color: selectedColor, opacity: selectedOpacity,
         canvasWidth: canvasRef.current?.getBoundingClientRect().width, canvasHeight: canvasRef.current?.getBoundingClientRect().height,
       }]);
     }
@@ -411,12 +513,97 @@ export default function PdfCanvasEditor({ file, onCancel }) {
   const toggleFormat = (format, currentState, setter) => { setter(!currentState); if (selectedElementId) updateElementAndSaveHistory(selectedElementId, { [format]: !currentState }); };
   const applyAlign = (alignValue) => { setTextAlign(alignValue); if (selectedElementId) updateElementAndSaveHistory(selectedElementId, { align: alignValue }); };
 
+  // Free-drag resize handle for images. Commits to history on mouse-up so a single resize is one undo step.
+  const startImageResize = (el, e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const startX = e.clientX, startY = e.clientY;
+    const startW = el.width, startH = el.height;
+    const onMove = (ev) => {
+      const dx = ev.clientX - startX, dy = ev.clientY - startY;
+      updateElement(el.id, { width: Math.max(30, startW + dx), height: Math.max(30, startH + dy) });
+    };
+    const onUp = () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+      setElements(curr => {
+        const newHistory = history.slice(0, historyIndex + 1);
+        newHistory.push(curr);
+        setHistory(newHistory);
+        setHistoryIndex(newHistory.length - 1);
+        elementsRef.current = curr;
+        return curr;
+      });
+    };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  };
+
+  const zoomIn = () => setZoom(z => Math.min(3, +(z + 0.1).toFixed(2)));
+  const zoomOut = () => setZoom(z => Math.max(0.5, +(z - 0.1).toFixed(2)));
+  const zoomReset = () => setZoom(1);
+
+  // Signature pad: draws with a transparent background so the exported PNG only contains ink,
+  // then drops it in as a normal (movable, resizable) image element rather than a raw pen stroke.
+  const openSignatureModal = () => {
+    setShowSignatureModal(true);
+    setTimeout(() => {
+      const canvas = sigCanvasRef.current;
+      if (canvas) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+    }, 0);
+  };
+  const handleSigMouseDown = (e) => {
+    sigDrawingRef.current = true;
+    const rect = sigCanvasRef.current.getBoundingClientRect();
+    sigLastPointRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  };
+  const handleSigMouseMove = (e) => {
+    if (!sigDrawingRef.current) return;
+    const rect = sigCanvasRef.current.getBoundingClientRect();
+    const point = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    const ctx = sigCanvasRef.current.getContext('2d');
+    ctx.strokeStyle = '#1a1a1a';
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    ctx.moveTo(sigLastPointRef.current.x, sigLastPointRef.current.y);
+    ctx.lineTo(point.x, point.y);
+    ctx.stroke();
+    sigLastPointRef.current = point;
+  };
+  const handleSigMouseUp = () => { sigDrawingRef.current = false; };
+  const clearSignature = () => {
+    const canvas = sigCanvasRef.current;
+    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+  };
+  const insertSignature = () => {
+    const canvas = sigCanvasRef.current;
+    const ctx = canvas.getContext('2d');
+    const pixelData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    let hasInk = false;
+    for (let i = 3; i < pixelData.length; i += 4) { if (pixelData[i] !== 0) { hasInk = true; break; } }
+    if (!hasInk) { showToast('Draw your signature first', 'error'); return; }
+    const dataUrl = canvas.toDataURL('image/png');
+    const rect = canvasRef.current.getBoundingClientRect();
+    const width = 180, height = 68;
+    const newId = Date.now();
+    saveHistory([...elements, {
+      id: newId, type: 'image', x: (rect.width - width) / 2, y: rect.height / 2,
+      width, height, src: dataUrl, page: pageNumber, canvasWidth: rect.width, canvasHeight: rect.height,
+    }]);
+    setShowSignatureModal(false);
+    setActiveTool('selection');
+    setSelectedElementId(newId);
+  };
+
   const ToolBtn = ({ id, icon: Icon, label, disabled }) => (
     <button 
       className={`w-full flex flex-col items-center justify-center gap-1 p-3 rounded-lg transition-colors ${activeTool === id ? 'bg-blue-50 text-blue-600 shadow-sm border border-blue-100' : 'text-gray-600 hover:bg-gray-100'} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
       onClick={() => {
         if (disabled) return;
-        if (id === 'image') { fileInputRef.current?.click(); }
+        if (id === 'image') { fileInputRef.current?.click(); return; }
+        if (id === 'sign') { openSignatureModal(); return; }
         setActiveTool(id);
       }}
       title={label}
@@ -426,7 +613,8 @@ export default function PdfCanvasEditor({ file, onCancel }) {
     </button>
   );
 
-  const needsPropertiesPanel = ['text', 'draw', 'highlight', 'arrow', 'sign', 'check', 'cross'].includes(activeTool) || selectedElementId !== null;
+  const needsPropertiesPanel = ['text', 'draw', 'highlight', 'arrow', 'check', 'cross'].includes(activeTool) || selectedElementId !== null;
+  const overlayInteractive = !(activeTool === 'selection' || activeTool === 'edit' || activeTool === 'highlight');
 
   return (
     <div className="flex h-[85vh] border border-gray-200 rounded-2xl overflow-hidden bg-gray-50 text-gray-800 shadow-xl font-sans">
@@ -456,10 +644,15 @@ export default function PdfCanvasEditor({ file, onCancel }) {
         
         {/* Top Header */}
         <div className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 shadow-sm z-10 shrink-0">
-           <div className="flex items-center gap-4">
+           <div className="flex items-center gap-3">
              <div className="flex gap-1 bg-gray-50 rounded-lg p-1 border border-gray-200">
-               <button className={`p-2 rounded hover:bg-white hover:shadow-sm ${historyIndex === 0 ? 'opacity-30' : ''}`} onClick={handleUndo}><Undo size={18} /></button>
-               <button className={`p-2 rounded hover:bg-white hover:shadow-sm ${historyIndex === history.length - 1 ? 'opacity-30' : ''}`} onClick={handleRedo}><Redo size={18} /></button>
+               <button className={`p-2 rounded hover:bg-white hover:shadow-sm ${historyIndex === 0 ? 'opacity-30' : ''}`} onClick={handleUndo} title="Undo (Ctrl+Z)"><Undo size={18} /></button>
+               <button className={`p-2 rounded hover:bg-white hover:shadow-sm ${historyIndex === history.length - 1 ? 'opacity-30' : ''}`} onClick={handleRedo} title="Redo (Ctrl+Shift+Z)"><Redo size={18} /></button>
+             </div>
+             <div className="flex items-center gap-1 bg-gray-50 rounded-lg p-1 border border-gray-200">
+               <button className="p-2 rounded hover:bg-white hover:shadow-sm" onClick={zoomOut} title="Zoom out"><ZoomOut size={16} /></button>
+               <button className="text-xs font-medium w-12 text-center hover:bg-white rounded py-1" onClick={zoomReset} title="Reset zoom">{Math.round(zoom * 100)}%</button>
+               <button className="p-2 rounded hover:bg-white hover:shadow-sm" onClick={zoomIn} title="Zoom in"><ZoomIn size={16} /></button>
              </div>
              {pendingImage && <span className="text-sm font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">Click canvas to place image</span>}
            </div>
@@ -475,13 +668,13 @@ export default function PdfCanvasEditor({ file, onCancel }) {
         <div className="flex-1 overflow-auto flex justify-center py-10 px-4 relative">
           <Document file={file} onLoadSuccess={onDocumentLoadSuccess} className="shadow-2xl">
              <div className="relative border border-gray-200 bg-white ring-1 ring-gray-900/5">
-               <Page pageNumber={pageNumber} renderTextLayer={true} renderAnnotationLayer={false} />
+               <Page pageNumber={pageNumber} scale={zoom} renderTextLayer={true} renderAnnotationLayer={false} onRenderSuccess={handlePageRenderSuccess} />
                
                {/* Interactive Overlay */}
                <div 
                  ref={canvasRef}
-                 className={`absolute top-0 left-0 w-full h-full z-10 ${['draw', 'highlight', 'erase', 'text', 'sign', 'arrow', 'check', 'cross', 'image'].includes(activeTool) ? 'cursor-crosshair' : ''}`}
-                 style={{ pointerEvents: activeTool === 'selection' || activeTool === 'edit' ? 'none' : 'auto' }}
+                 className={`absolute top-0 left-0 w-full h-full z-10 ${['draw', 'erase', 'text', 'arrow', 'check', 'cross', 'image'].includes(activeTool) ? 'cursor-crosshair' : ''}`}
+                 style={{ pointerEvents: overlayInteractive ? 'auto' : 'none' }}
                  onMouseDown={handleCanvasMouseDown} onMouseMove={handleCanvasMouseMove} onMouseUp={handleCanvasMouseUp} onMouseLeave={handleCanvasMouseUp} onClick={handleCanvasClick}
                >
                   {elements.filter(el => el.page === pageNumber).map(el => {
@@ -495,10 +688,17 @@ export default function PdfCanvasEditor({ file, onCancel }) {
                            onDragEnd={(e, info) => updateElementAndSaveHistory(el.id, { x: el.x + info.offset.x, y: el.y + info.offset.y })}
                            onClick={(e) => { e.stopPropagation(); setActiveTool('selection'); setSelectedElementId(el.id); }}
                          >
-                           <div className={`w-full h-full border-2 ${isSelected ? 'border-blue-500 border-dashed bg-blue-50/10' : 'border-transparent'} relative group`}>
-                             <img src={el.src} style={{ width: '100%', height: '100%', objectFit: 'fill' }} />
+                           <div className={`w-full h-full border-2 ${isSelected ? 'border-blue-500 shadow-[0_0_0_1px_rgba(59,130,246,0.3)]' : 'border-transparent'} relative group`}>
+                             <img src={el.src} style={{ width: '100%', height: '100%', objectFit: 'fill' }} draggable={false} />
                              {isSelected && (
-                                <button className="absolute -top-3 -right-3 bg-red-100 text-red-600 rounded-full p-1 shadow-sm" onMouseDown={(e) => { e.stopPropagation(); deleteElement(el.id); }}><Trash2 size={12} /></button>
+                                <>
+                                  <button className="absolute -top-3 -right-3 bg-red-100 text-red-600 rounded-full p-1 shadow-sm" onMouseDown={(e) => { e.stopPropagation(); deleteElement(el.id); }}><Trash2 size={12} /></button>
+                                  <div
+                                    className="absolute -right-1.5 -bottom-1.5 w-3.5 h-3.5 bg-blue-500 rounded-full border-2 border-white shadow"
+                                    style={{ pointerEvents: 'auto', cursor: 'nwse-resize' }}
+                                    onMouseDown={(e) => startImageResize(el, e)}
+                                  />
+                                </>
                              )}
                            </div>
                          </motion.div>
@@ -518,7 +718,8 @@ export default function PdfCanvasEditor({ file, onCancel }) {
                                          color: el.color || '#000000', fontSize: el.size || 16,
                                          fontWeight: el.bold ? 'bold' : 'normal', fontStyle: el.italic ? 'italic' : 'normal',
                                          textDecoration: el.underline ? 'underline' : 'none', textAlign: el.align || 'left',
-                                         fontFamily: 'inherit', width: `${Math.max(60, (el.text.length + 3) * (el.size || 16) * 0.56)}px`,
+                                         fontFamily: 'Helvetica, Arial, sans-serif',
+                                         width: `${Math.max(60, measureTextWidth(el.text, el.size, el.bold, el.italic) + 12)}px`,
                                          border: isSelected ? '1px dashed #3b82f6' : '1px dashed transparent', borderRadius: 2, cursor: 'text', pointerEvents: 'auto'
                                       }}
                                       autoFocus={isSelected} />
@@ -535,7 +736,7 @@ export default function PdfCanvasEditor({ file, onCancel }) {
                             onDragEnd={(e, info) => updateElementAndSaveHistory(el.id, { x: el.x + info.offset.x, y: el.y + info.offset.y })}
                             onClick={(e) => { e.stopPropagation(); setActiveTool('selection'); setSelectedElementId(el.id); }}
                           >
-                            <div className={`p-1 -m-1 border-2 ${isSelected ? 'border-blue-500 border-dashed bg-blue-50/30' : 'border-transparent'}`}>
+                            <div className={`p-1 -m-1 border-2 ${isSelected ? 'border-blue-500 shadow-[0_0_0_1px_rgba(59,130,246,0.3)]' : 'border-transparent'}`}>
                                <input id={`text-input-${el.id}`} type="text" value={el.text} onChange={(e) => updateElement(el.id, { text: e.target.value })}
                                  onBlur={() => { if (!el.text.trim()) deleteElement(el.id); else updateElementAndSaveHistory(el.id, { text: el.text }); }}
                                  placeholder={isSelected ? "Type..." : ""}
@@ -544,7 +745,8 @@ export default function PdfCanvasEditor({ file, onCancel }) {
                                     color: el.color, fontSize: el.size || 16,
                                     fontWeight: el.bold ? 'bold' : 'normal', fontStyle: el.italic ? 'italic' : 'normal',
                                     textDecoration: el.underline ? 'underline' : 'none', textAlign: el.align || 'left',
-                                    width: `${Math.max(50, (el.text.length + 1) * (el.size * 0.6))}px`
+                                    fontFamily: 'Helvetica, Arial, sans-serif',
+                                    width: `${Math.max(50, measureTextWidth(el.text, el.size, el.bold, el.italic) + 16)}px`
                                  }}
                                  autoFocus={isSelected && !el.text} />
                             </div>
@@ -584,16 +786,13 @@ export default function PdfCanvasEditor({ file, onCancel }) {
                           <line x1={el.x - 7.5} y1={el.y + 7.5} x2={el.x + 7.5} y2={el.y - 7.5} />
                         </g>
                      ))}
-                     {isDrawing && (activeTool === 'draw' || activeTool === 'sign') && currentPath.length > 0 && (
-                        <polyline points={currentPath.map(p => `${p.x},${p.y}`).join(' ')} fill="none" stroke={activeTool === 'sign' ? '#000000' : selectedColor} strokeWidth="2" />
+                     {isDrawing && activeTool === 'draw' && currentPath.length > 0 && (
+                        <polyline points={currentPath.map(p => `${p.x},${p.y}`).join(' ')} fill="none" stroke={selectedColor} strokeWidth="2" />
                      )}
                      {isDrawing && activeTool === 'arrow' && currentPath.length === 2 && (
                         <g stroke={selectedColor} strokeWidth="2" fill="none">
                             <line x1={currentPath[0].x} y1={currentPath[0].y} x2={currentPath[1].x} y2={currentPath[1].y} />
                         </g>
-                     )}
-                     {isDrawing && activeTool === 'highlight' && currentPath.length === 2 && (
-                        <rect x={Math.min(currentPath[0].x, currentPath[1].x)} y={Math.min(currentPath[0].y, currentPath[1].y)} width={Math.abs(currentPath[1].x - currentPath[0].x)} height={Math.abs(currentPath[1].y - currentPath[0].y)} fill={selectedColor} opacity={selectedOpacity} />
                      )}
                   </svg>
                </div>
@@ -647,11 +846,15 @@ export default function PdfCanvasEditor({ file, onCancel }) {
                    <span className="text-sm font-medium text-gray-700">Font Size</span>
                    <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
                      <button onClick={() => { const s = Math.max(8, textSize - 2); setTextSize(s); if(selectedElementId) updateElementAndSaveHistory(selectedElementId, { size: s }); }} className="p-1 hover:bg-gray-100 bg-gray-50">-</button>
-                     <input type="number" value={textSize} onChange={e => { const s = Number(e.target.value); setTextSize(s); if(selectedElementId) updateElementAndSaveHistory(selectedElementId, { size: s }); }} className="w-10 text-center text-sm outline-none border-x border-gray-200" />
+                     <input type="number" min={8} value={textSize} onChange={e => { const s = Number(e.target.value); if (!Number.isFinite(s)) return; setTextSize(s); if(selectedElementId) updateElementAndSaveHistory(selectedElementId, { size: s }); }} className="w-10 text-center text-sm outline-none border-x border-gray-200" />
                      <button onClick={() => { const s = textSize + 2; setTextSize(s); if(selectedElementId) updateElementAndSaveHistory(selectedElementId, { size: s }); }} className="p-1 hover:bg-gray-100 bg-gray-50">+</button>
                    </div>
                  </div>
                </>
+            )}
+
+            {activeTool === 'highlight' && selectedElementId === null && (
+               <p className="text-xs text-gray-400 leading-relaxed">Select text in the document with your mouse — it'll be highlighted in this color automatically.</p>
             )}
 
             {selectedElementId !== null && (
@@ -663,6 +866,37 @@ export default function PdfCanvasEditor({ file, onCancel }) {
                </>
             )}
          </div>
+      )}
+
+      {/* Signature Modal */}
+      {showSignatureModal && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" onClick={() => setShowSignatureModal(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl p-6 w-[460px]" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold text-gray-800">Draw your signature</h3>
+              <button className="text-gray-400 hover:text-gray-600" onClick={() => setShowSignatureModal(false)}><X size={20} /></button>
+            </div>
+            <canvas
+              ref={sigCanvasRef}
+              width={400}
+              height={150}
+              className="w-full border-2 border-dashed border-gray-200 rounded-lg bg-gray-50 cursor-crosshair"
+              onMouseDown={handleSigMouseDown}
+              onMouseMove={handleSigMouseMove}
+              onMouseUp={handleSigMouseUp}
+              onMouseLeave={handleSigMouseUp}
+            />
+            <div className="flex items-center justify-between mt-4">
+              <button className="px-4 py-2 text-sm font-medium text-gray-500 hover:bg-gray-100 rounded-lg flex items-center gap-1" onClick={clearSignature}>
+                <RotateCcw size={14} /> Clear
+              </button>
+              <div className="flex gap-2">
+                <button className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg" onClick={() => setShowSignatureModal(false)}>Cancel</button>
+                <button className="px-4 py-2 text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 rounded-lg shadow-md" onClick={insertSignature}>Insert Signature</button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
