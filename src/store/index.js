@@ -6,5 +6,15 @@ export const store = configureStore({
     [apiSlice.reducerPath]: apiSlice.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(apiSlice.middleware),
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: [
+          'api/executeMutation/pending',
+          'api/executeMutation/fulfilled',
+          'api/executeMutation/rejected',
+        ],
+        ignoredActionPaths: ['meta.arg', 'payload'],
+        ignoredPaths: ['api.mutations'],
+      },
+    }).concat(apiSlice.middleware),
 });

@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import FileDropzone from '../components/FileDropzone';
+import FilePreviewModal from '../components/FilePreviewModal';
 import { showToast } from '../components/Toast';
 import { Download, Merge, Scissors, Trash2, RefreshCw, Plus } from 'lucide-react';
 import { useExcelMergeMutation, useExcelSplitMutation } from '../store/apiSlice';
@@ -34,6 +35,7 @@ export default function ExcelTools() {
   const [fileName, setFileName] = useState('');
   const [mergeFiles, setMergeFiles] = useState([]);
   const [splitFile, setSplitFile] = useState(null);
+  const [previewFile, setPreviewFile] = useState(null);
   
   const toolColor = '#FF8C42';
 
@@ -80,8 +82,8 @@ export default function ExcelTools() {
     const ws = XLSX.utils.aoa_to_sheet(tableData);
     XLSX.utils.book_append_sheet(wb, ws, sheetNames[activeSheet] || 'Sheet1');
     const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-    saveAs(new Blob([wbout], { type: 'application/octet-stream' }), `edited_${fileName}`);
-    showToast('Spreadsheet saved!', 'success');
+    setPreviewFile({ blob: new Blob([wbout], { type: 'application/octet-stream' }), filename: `edited_${fileName}` });
+    showToast('Spreadsheet ready for preview!', 'success');
   };
 
   const [excelMerge, { isLoading: isMerging }] = useExcelMergeMutation();
@@ -95,7 +97,7 @@ export default function ExcelTools() {
       const fd = new FormData();
       mergeFiles.forEach(f => fd.append('files', f));
       const blob = await excelMerge(fd).unwrap();
-      saveAs(blob, 'merged_spreadsheet.xlsx');
+      setPreviewFile({ blob, filename: 'merged_spreadsheet.xlsx' });
       showToast('Merged successfully via server!', 'success');
     } catch (e) { 
       let msg = e.message || 'Unknown error';
@@ -112,7 +114,7 @@ export default function ExcelTools() {
       const fd = new FormData();
       fd.append('file', splitFile);
       const blob = await excelSplit(fd).unwrap();
-      saveAs(blob, 'split_sheets.zip');
+      setPreviewFile({ blob, filename: 'split_sheets.zip' });
       showToast('Split successfully!', 'success');
     } catch (e) { 
       let msg = e.message || 'Unknown error';
@@ -244,7 +246,7 @@ export default function ExcelTools() {
                 </div>
                 <div style={{ marginTop: 16, display: 'flex', gap: 8 }}>
                   <button className="btn btn-primary" onClick={handleMerge} disabled={processing}>
-                    {processing ? <RefreshCw size={15} /> : <Merge size={15} />} {processing ? 'Merging…' : 'Merge Excel Files'}
+                    {processing ? <RefreshCw className="animate-spin" size={15} /> : <Merge size={15} />} {processing ? 'Merging…' : `Merge & Preview ${mergeFiles.length} Sheets`}
                   </button>
                   <button className="btn btn-secondary" onClick={() => setMergeFiles([])}><Trash2 size={13} /> Clear</button>
                 </div>
@@ -267,7 +269,7 @@ export default function ExcelTools() {
                 </div>
                 <p style={{ fontSize: 13, color: 'rgba(240,240,255,0.5)', marginBottom: 12 }}>Each sheet will be saved as a separate .xlsx file.</p>
                 <button className="btn btn-primary" onClick={() => handleSplit(splitFile)} disabled={processing}>
-                  {processing ? <RefreshCw size={15} /> : <Scissors size={15} />} {processing ? 'Splitting…' : 'Split by Sheets'}
+                  {processing ? <RefreshCw size={15} /> : <Scissors size={15} />} {processing ? 'Splitting…' : 'Split & Preview Sheets'}
                 </button>
               </motion.div>
             )}
@@ -276,6 +278,7 @@ export default function ExcelTools() {
           </motion.div>
         )}
       </motion.div>
+      <FilePreviewModal previewFile={previewFile} onClose={() => setPreviewFile(null)} />
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { saveAs } from 'file-saver';
 import mammoth from 'mammoth';
 import FileDropzone from '../components/FileDropzone';
 import RichEditor from '../components/RichEditor';
+import FilePreviewModal from '../components/FilePreviewModal';
 import { showToast } from '../components/Toast';
 import { Trash2, Download, RefreshCw, Merge, Scissors } from 'lucide-react';
 
@@ -35,6 +36,7 @@ export default function WordTools() {
   const [mergeFiles, setMergeFiles] = useState([]);
   const [splitFile, setSplitFile] = useState(null);
   const [splitSections, setSplitSections] = useState('');
+  const [previewFile, setPreviewFile] = useState(null);
   
   const [wordMerge, { isLoading: isMerging }] = useWordMergeMutation();
   const [wordSplit, { isLoading: isSplitting }] = useWordSplitMutation();
@@ -68,8 +70,8 @@ export default function WordTools() {
   const downloadEdited = () => {
     if (!htmlContent) return showToast('Nothing to save', 'error');
     const blob = new Blob([`<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;margin:40px;line-height:1.6;}</style></head><body>${htmlContent}</body></html>`], { type: 'text/html' });
-    saveAs(blob, `edited_${editFile?.name || 'document'}.html`);
-    showToast('Document saved as HTML (open in Word)', 'success');
+    setPreviewFile({ blob, filename: `edited_${editFile?.name || 'document'}.html` });
+    showToast('Document ready for preview', 'success');
   };
 
   const handleMerge = async () => {
@@ -78,7 +80,7 @@ export default function WordTools() {
       const fd = new FormData();
       mergeFiles.forEach(f => fd.append('files', f));
       const blob = await wordMerge(fd).unwrap();
-      saveAs(blob, 'merged_document.docx');
+      setPreviewFile({ blob, filename: 'merged_document.docx' });
       showToast('Documents merged via server!', 'success');
     } catch (e) {
       showToast(`Merge failed: ${e.message || 'Server error'}`, 'error');
@@ -92,7 +94,7 @@ export default function WordTools() {
       fd.append('file', splitFile);
       if (splitSections) fd.append('sections', splitSections);
       const blob = await wordSplit(fd).unwrap();
-      saveAs(blob, 'split_document.zip');
+      setPreviewFile({ blob, filename: 'split_document.zip' });
       showToast('Document split successfully into ZIP!', 'success');
     } catch (e) {
       showToast(`Split failed: ${e.message || 'Server error'}`, 'error');
@@ -169,7 +171,7 @@ export default function WordTools() {
                 </div>
                 <RichEditor value={htmlContent} onChange={setHtmlContent} placeholder="Edit your document…" minHeight={320} showEmoji />
                 <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
-                  <button className="btn btn-cyan" onClick={downloadEdited}><Download size={15} /> Save Document</button>
+                  <button className="btn btn-cyan" onClick={downloadEdited}><Download size={15} /> Preview & Save Document</button>
                 </div>
               </motion.div>
             )}
@@ -195,7 +197,7 @@ export default function WordTools() {
                 </div>
                 <div style={{ marginTop: 16, display: 'flex', gap: 8 }}>
                   <button className="btn btn-cyan" onClick={handleMerge} disabled={processing}>
-                    {processing ? <RefreshCw className="animate-spin" size={15} /> : <Merge size={15} />} {processing ? 'Merging…' : 'Merge Documents'}
+                    {processing ? <RefreshCw className="animate-spin" size={15} /> : <Merge size={15} />} {processing ? 'Merging…' : 'Merge & Preview Documents'}
                   </button>
                   <button className="btn btn-secondary" onClick={() => setMergeFiles([])}><Trash2 size={13} /> Clear</button>
                 </div>
@@ -223,7 +225,7 @@ export default function WordTools() {
                   <input className="input" value={splitSections} onChange={e => setSplitSections(e.target.value)} placeholder="1, 2, 3 …" />
                 </div>
                 <button className="btn btn-cyan" onClick={handleSplit} disabled={processing}>
-                  {processing ? <RefreshCw className="animate-spin" size={15} /> : <Scissors size={15} />} {processing ? 'Splitting…' : 'Split Document'}
+                  {processing ? <RefreshCw className="animate-spin" size={15} /> : <Scissors size={15} />} {processing ? 'Splitting…' : 'Split & Preview Document'}
                 </button>
               </motion.div>
             )}
@@ -254,6 +256,7 @@ export default function WordTools() {
           </motion.div>
         )}
       </motion.div>
+      <FilePreviewModal previewFile={previewFile} onClose={() => setPreviewFile(null)} />
     </div>
   );
 }

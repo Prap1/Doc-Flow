@@ -46,7 +46,7 @@ function scaleElementCoords(el, ratio) {
   return scaled;
 }
 
-export default function PdfCanvasEditor({ file, onCancel }) {
+export default function PdfCanvasEditor({ file, onCancel, onSave }) {
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
   const [activeTool, setActiveTool] = useState('selection');
@@ -498,7 +498,11 @@ export default function PdfCanvasEditor({ file, onCancel }) {
       }
 
       const pdfBytes = await pdfDoc.save();
-      saveAs(new Blob([pdfBytes], { type: 'application/pdf' }), `edited_${file.name}`);
+      if (onSave) {
+        onSave(new Blob([pdfBytes], { type: 'application/pdf' }), `edited_${file.name}`);
+      } else {
+        saveAs(new Blob([pdfBytes], { type: 'application/pdf' }), `edited_${file.name}`);
+      }
       showToast('PDF Saved Successfully!', 'success');
       setSelectedElementId(null);
     } catch (err) {
@@ -659,7 +663,7 @@ export default function PdfCanvasEditor({ file, onCancel }) {
            <div className="flex items-center gap-3">
              <button className="px-5 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition" onClick={onCancel}>Cancel</button>
              <button className="px-5 py-2 text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 rounded-lg shadow-md transition flex items-center gap-2" onClick={handleSave}>
-               <Download size={16} /> Save & Download
+               <Download size={16} /> Preview & Download
              </button>
            </div>
         </div>

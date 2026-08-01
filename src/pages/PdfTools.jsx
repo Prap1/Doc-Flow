@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { saveAs } from 'file-saver';
 import FileDropzone from '../components/FileDropzone';
 import PdfCanvasEditor from '../components/PdfCanvasEditor';
+import FilePreviewModal from '../components/FilePreviewModal';
 import { showToast } from '../components/Toast';
 import { Trash2, Download, Scissors, Merge, FileText, RefreshCw, Server, Cpu } from 'lucide-react';
 import { 
@@ -44,6 +45,7 @@ export default function PdfTools() {
   const [useServer, setUseServer] = useState(true);
   const [pageInfo, setPageInfo] = useState(null);
   const [convertedFile, setConvertedFile] = useState(null);
+  const [previewFile, setPreviewFile] = useState(null);
 
   const [pdfInfoReq] = usePdfInfoMutation();
   const [pdfMerge, { isLoading: isMerging }] = usePdfMergeMutation();
@@ -91,8 +93,8 @@ export default function PdfTools() {
       const fd = new FormData();
       fd.append('html', htmlContent);
       const blob = await htmlToPdf(fd).unwrap();
-      saveAs(blob, `edited_${files[0]?.name || 'document'}.pdf`);
-      showToast('PDF saved successfully!', 'success');
+      setPreviewFile({ blob, filename: `edited_${files[0]?.name || 'document'}.pdf` });
+      showToast('PDF ready for preview!', 'success');
     } catch (e) {
       showToast(`Save failed: ${e.message}`, 'error');
     }
@@ -106,7 +108,7 @@ export default function PdfTools() {
         const fd = new FormData();
         mergeFiles.forEach(f => fd.append('files', f));
         const blob = await pdfMerge(fd).unwrap();
-        saveAs(blob, 'merged_docflow.pdf');
+        setPreviewFile({ blob, filename: 'merged_docflow.pdf' });
         showToast('PDFs merged via server!', 'success');
       } else {
         const { PDFDocument } = await import('pdf-lib');
@@ -118,7 +120,7 @@ export default function PdfTools() {
           copied.forEach(p => merged.addPage(p));
         }
         const out = await merged.save();
-        saveAs(new Blob([out], { type: 'application/pdf' }), 'merged_docflow.pdf');
+        setPreviewFile({ blob: new Blob([out], { type: 'application/pdf' }), filename: 'merged_docflow.pdf' });
         showToast('PDFs merged (client-side)!', 'success');
       }
     } catch (e) { showToast(`Merge failed: ${e.message || 'Server error'}`, 'error'); }
@@ -133,7 +135,7 @@ export default function PdfTools() {
         fd.append('file', splitFile);
         if (splitPage) fd.append('pages', splitPage);
         const blob = await pdfSplit(fd).unwrap();
-        saveAs(blob, `split_${splitFile.name}.zip`);
+        setPreviewFile({ blob, filename: `split_${splitFile.name}.zip` });
         showToast('PDF split via server!', 'success');
       } else {
         const { PDFDocument } = await import('pdf-lib');
@@ -225,7 +227,7 @@ export default function PdfTools() {
                 accept={{ 'application/pdf': ['.pdf'] }} multiple={false} label="Drop your PDF here to visually edit" icon="📄" color={toolColor} />
             ) : (
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={{ marginTop: 20 }}>
-                <PdfCanvasEditor file={files[0]} onCancel={() => { setFiles([]); setPageInfo(null); }} />
+                <PdfCanvasEditor file={files[0]} onCancel={() => { setFiles([]); setPageInfo(null); }} onSave={(blob, filename) => setPreviewFile({blob, filename})} />
               </motion.div>
             )}
               </div>
@@ -251,7 +253,7 @@ export default function PdfTools() {
                 </div>
                 <div style={{ marginTop: 16, display: 'flex', gap: 8 }}>
                   <button className="btn btn-accent" onClick={handleMerge} disabled={processing}>
-                    {processing ? <RefreshCw className="animate-spin" size={15} /> : <Merge size={15} />} {processing ? 'Merging…' : `Merge ${mergeFiles.length} PDFs`}
+                    {processing ? <RefreshCw className="animate-spin" size={15} /> : <Merge size={15} />} {processing ? 'Merging…' : `Merge & Preview ${mergeFiles.length} PDFs`}
                   </button>
                   <button className="btn btn-secondary" onClick={() => setMergeFiles([])}><Trash2 size={15} /> Clear All</button>
                 </div>
@@ -280,7 +282,7 @@ export default function PdfTools() {
                 </div>
                 <div style={{ display: 'flex', gap: 8 }}>
                   <button className="btn btn-accent" onClick={handleSplit} disabled={processing}>
-                    {processing ? <RefreshCw className="animate-spin" size={15} /> : <Scissors size={15} />} {processing ? 'Splitting…' : 'Split PDF'}
+                    {processing ? <RefreshCw className="animate-spin" size={15} /> : <Scissors size={15} />} {processing ? 'Splitting…' : 'Split & Preview PDF'}
                   </button>
                   <button className="btn btn-secondary" onClick={() => setSplitFile(null)}><Trash2 size={13} /> Remove</button>
                 </div>
@@ -312,8 +314,8 @@ export default function PdfTools() {
                         </div>
                       </div>
                       <div style={{ display: 'flex', gap: 8 }}>
-                        <button className="btn btn-primary btn-sm" style={{ flex: 1, background: opt.color, borderColor: opt.color, color: 'white' }} onClick={() => { saveAs(convertedFile.blob, convertedFile.name); showToast('Downloading file...', 'success'); }}>
-                          <Download size={14} /> Download
+                        <button className="btn btn-primary btn-sm" style={{ flex: 1, background: opt.color, borderColor: opt.color, color: 'white' }} onClick={() => { setPreviewFile({ blob: convertedFile.blob, filename: convertedFile.name }); showToast('Generating preview...', 'success'); }}>
+                          <Download size={14} /> Preview & Download
                         </button>
                         <button className="btn btn-secondary btn-sm" style={{ flex: 1 }} onClick={() => { navigator.clipboard.writeText('https://docflow.pro/share/' + Math.random().toString(36).substring(7)); showToast('Share link copied to clipboard!', 'success'); }}>
                           🔗 Share
@@ -361,6 +363,7 @@ export default function PdfTools() {
           </motion.div>
         )}
       </motion.div>
+      <FilePreviewModal previewFile={previewFile} onClose={() => setPreviewFile(null)} />
     </div>
   );
 }

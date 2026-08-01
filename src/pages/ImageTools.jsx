@@ -3,6 +3,7 @@ import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { saveAs } from 'file-saver';
 import FileDropzone from '../components/FileDropzone';
+import FilePreviewModal from '../components/FilePreviewModal';
 import { showToast } from '../components/Toast';
 import { Download, Trash2, Merge, Scissors, RotateCw, FlipHorizontal, Sun, Contrast, ZoomIn, ZoomOut } from 'lucide-react';
 
@@ -26,6 +27,7 @@ export default function ImageTools() {
   const [flip, setFlip] = useState(false);
   const [scale, setScale] = useState(1);
   const [mergeImages, setMergeImages] = useState([]);
+  const [previewFile, setPreviewFile] = useState(null);
   const canvasRef = useRef(null);
   const toolColor = '#A855F7';
 
@@ -60,8 +62,8 @@ export default function ImageTools() {
       if (flip) ctx.scale(-1, 1);
       ctx.drawImage(img, -canvas.width / 2, -canvas.height / 2);
       canvas.toBlob(blob => {
-        saveAs(blob, `edited_${image.name}`);
-        showToast('Image downloaded!', 'success');
+        setPreviewFile({ blob, filename: `edited_${image.name}` });
+        showToast('Image ready for preview!', 'success');
       }, 'image/png');
     };
   };
@@ -83,8 +85,8 @@ export default function ImageTools() {
       let x = 0;
       imgs.forEach(im => { ctx.drawImage(im, x, 0); x += im.naturalWidth; });
       canvas.toBlob(blob => {
-        saveAs(blob, 'merged_images.png');
-        showToast('Images merged horizontally!', 'success');
+        setPreviewFile({ blob, filename: 'merged_images.png' });
+        showToast('Images ready for preview!', 'success');
       }, 'image/png');
     });
   };
@@ -256,7 +258,9 @@ export default function ImageTools() {
                   ))}
                 </div>
                 <div style={{ display: 'flex', gap: 8 }}>
-                  <button className="btn btn-primary" onClick={handleMergeImages}><Merge size={15} /> Merge {mergeImages.length} Images</button>
+                  <button className="btn btn-accent" onClick={handleMergeImages}>
+                    <Merge size={15} /> Merge & Preview {mergeImages.length} Images
+                  </button>
                   <button className="btn btn-secondary" onClick={() => setMergeImages([])}><Trash2 size={13} /> Clear</button>
                 </div>
               </motion.div>
@@ -278,7 +282,9 @@ export default function ImageTools() {
                 </div>
                 <p style={{ fontSize: 13, color: 'rgba(240,240,255,0.5)', marginBottom: 12 }}>Image will be split vertically into 2 equal halves.</p>
                 <div style={{ display: 'flex', gap: 8 }}>
-                  <button className="btn btn-primary" onClick={handleSplitImage}><Scissors size={15} /> Split Image</button>
+                  <button className="btn btn-accent" onClick={handleSplitImage}>
+                  <Scissors size={15} /> Split & Preview Image
+                  </button>
                   <button className="btn btn-secondary" onClick={() => { setImgUrl(null); setImage(null); }}><Trash2 size={13} /> Remove</button>
                 </div>
               </motion.div>
@@ -288,6 +294,7 @@ export default function ImageTools() {
           </motion.div>
         )}
       </motion.div>
+      <FilePreviewModal previewFile={previewFile} onClose={() => setPreviewFile(null)} />
     </div>
   );
 }
