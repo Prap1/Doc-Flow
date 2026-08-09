@@ -1,66 +1,66 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const apiSlice = createApi({
-  reducerPath: 'api',
-  baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
+  reducerPath: "api",
+  baseQuery: fetchBaseQuery({ baseUrl: "/api" }),
   endpoints: (builder) => ({
     // Health
     checkHealth: builder.query({
-      query: () => '/health',
+      query: () => "/health",
     }),
-    
+
     // PDF Endpoints
     pdfAnnotate: builder.mutation({
       query: (formData) => ({
-        url: '/pdf/annotate',
-        method: 'POST',
+        url: "/pdf/annotate",
+        method: "POST",
         body: formData,
         responseHandler: (response) => response.blob(),
       }),
     }),
     pdfMerge: builder.mutation({
       query: (formData) => ({
-        url: '/pdf/merge',
-        method: 'POST',
+        url: "/pdf/merge",
+        method: "POST",
         body: formData,
         responseHandler: (response) => response.blob(),
       }),
     }),
     pdfSplit: builder.mutation({
       query: (formData) => ({
-        url: '/pdf/split',
-        method: 'POST',
+        url: "/pdf/split",
+        method: "POST",
         body: formData,
         responseHandler: (response) => response.blob(),
       }),
     }),
     pdfInfo: builder.mutation({
       query: (formData) => ({
-        url: '/pdf/info',
-        method: 'POST',
+        url: "/pdf/info",
+        method: "POST",
         body: formData,
       }),
     }),
     pdfToDocx: builder.mutation({
       query: (formData) => ({
-        url: '/pdf/convert/docx',
-        method: 'POST',
+        url: "/pdf/convert/docx",
+        method: "POST",
         body: formData,
         responseHandler: (response) => response.blob(),
       }),
     }),
     pdfToHtml: builder.mutation({
       query: (formData) => ({
-        url: '/pdf/convert/html',
-        method: 'POST',
+        url: "/pdf/convert/html",
+        method: "POST",
         body: formData,
         responseHandler: (response) => response.text(),
       }),
     }),
     htmlToPdf: builder.mutation({
       query: (formData) => ({
-        url: '/pdf/convert/html-to-pdf',
-        method: 'POST',
+        url: "/pdf/convert/html-to-pdf",
+        method: "POST",
         body: formData,
         responseHandler: (response) => response.blob(),
       }),
@@ -69,31 +69,31 @@ export const apiSlice = createApi({
     // Excel Endpoints
     excelMerge: builder.mutation({
       query: (formData) => ({
-        url: '/excel/merge',
-        method: 'POST',
+        url: "/excel/merge",
+        method: "POST",
         body: formData,
         responseHandler: (response) => response.blob(),
       }),
     }),
     excelSplit: builder.mutation({
       query: (formData) => ({
-        url: '/excel/split',
-        method: 'POST',
+        url: "/excel/split",
+        method: "POST",
         body: formData,
         responseHandler: (response) => response.blob(),
       }),
     }),
     excelToJson: builder.mutation({
       query: (formData) => ({
-        url: '/excel/to-json',
-        method: 'POST',
+        url: "/excel/to-json",
+        method: "POST",
         body: formData,
       }),
     }),
     jsonToExcel: builder.mutation({
       query: (data) => ({
-        url: '/excel/from-json',
-        method: 'POST',
+        url: "/excel/from-json",
+        method: "POST",
         body: data, // JSON data
         responseHandler: (response) => response.blob(),
       }),
@@ -102,65 +102,65 @@ export const apiSlice = createApi({
     // Image Endpoints
     imageEdit: builder.mutation({
       query: (formData) => ({
-        url: '/image/edit',
-        method: 'POST',
+        url: "/image/edit",
+        method: "POST",
         body: formData,
         responseHandler: (response) => response.blob(),
       }),
     }),
     imageMerge: builder.mutation({
       query: (formData) => ({
-        url: '/image/merge',
-        method: 'POST',
+        url: "/image/merge",
+        method: "POST",
         body: formData,
         responseHandler: (response) => response.blob(),
       }),
     }),
     imageSplit: builder.mutation({
       query: (formData) => ({
-        url: '/image/split',
-        method: 'POST',
+        url: "/image/split",
+        method: "POST",
         body: formData,
         responseHandler: (response) => response.blob(),
       }),
     }),
     imageCompress: builder.mutation({
       query: (formData) => ({
-        url: '/image/compress',
-        method: 'POST',
+        url: "/image/compress",
+        method: "POST",
         body: formData,
         responseHandler: (response) => response.blob(),
       }),
     }),
-    
+
     // Word Endpoints
     wordMerge: builder.mutation({
       query: (formData) => ({
-        url: '/word/merge',
-        method: 'POST',
+        url: "/word/merge",
+        method: "POST",
         body: formData,
         responseHandler: (response) => response.blob(),
       }),
     }),
     wordSplit: builder.mutation({
       query: (formData) => ({
-        url: '/word/split',
-        method: 'POST',
+        url: "/word/split",
+        method: "POST",
         body: formData,
         responseHandler: (response) => response.blob(),
       }),
     }),
     wordToHtml: builder.mutation({
       query: (formData) => ({
-        url: '/word/convert/html',
-        method: 'POST',
+        url: "/word/convert/html",
+        method: "POST",
         body: formData,
       }),
     }),
     htmlToDocx: builder.mutation({
       query: (formData) => ({
-        url: '/word/convert/docx',
-        method: 'POST',
+        url: "/word/convert/docx",
+        method: "POST",
         body: formData,
         responseHandler: (response) => response.blob(),
       }),

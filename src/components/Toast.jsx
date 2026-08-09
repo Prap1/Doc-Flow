@@ -1,11 +1,11 @@
-import { toast, ToastContainer } from 'react-toastify';
+import { toast, ToastContainer } from "react-toastify";
 
-export function showToast(message, type = 'success') {
-  if (type === 'success') {
+export function showToast(message, type = "success") {
+  if (type === "success") {
     toast.success(message);
-  } else if (type === 'error') {
+  } else if (type === "error") {
     toast.error(message);
-  } else if (type === 'warn') {
+  } else if (type === "warn") {
     toast.warn(message);
   } else {
     toast.info(message);
@@ -14,7 +14,7 @@ export function showToast(message, type = 'success') {
 
 export function Toaster() {
   return (
-    <ToastContainer 
+    <ToastContainer
       position="bottom-right"
       theme="dark"
       autoClose={3500}
