@@ -100,7 +100,7 @@ export default function RichEditor({
 
   const ToolBtn = ({ id, icon: Icon, label, disabled, onClick }) => (
     <button
-      className={`w-full flex flex-col items-center justify-center gap-1 p-3 rounded-lg transition-colors ${activeTool === id ? "bg-blue-50 text-blue-600 shadow-sm border border-blue-100" : "text-gray-600 hover:bg-gray-100"} ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+      className={`min-w-[50px] md:w-full flex flex-col items-center justify-center gap-1 p-2 md:p-3 rounded-lg transition-colors shrink-0 ${activeTool === id ? "bg-blue-50 text-blue-600 shadow-sm border border-blue-100" : "text-gray-600 hover:bg-gray-100"} ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
       onClick={(e) => {
         e.preventDefault();
         if (disabled) return;
@@ -117,16 +117,16 @@ export default function RichEditor({
   );
 
   return (
-    <div className="flex h-[85vh] border border-gray-200 rounded-2xl overflow-hidden bg-gray-50 text-gray-800 shadow-xl font-sans w-full">
+    <div className="flex flex-col md:flex-row h-[85vh] border border-gray-200 rounded-2xl overflow-hidden bg-gray-50 text-gray-800 shadow-xl font-sans w-full">
       {/* Left Sidebar Toolbar */}
-      <div className="w-20 md:w-24 bg-white border-r border-gray-200 flex flex-col items-center py-4 gap-2 z-20 shadow-sm overflow-y-auto shrink-0">
+      <div className="w-full md:w-24 bg-white border-b md:border-b-0 md:border-r border-gray-200 flex flex-row md:flex-col items-center py-2 md:py-4 px-4 md:px-0 gap-2 z-20 shadow-sm overflow-x-auto md:overflow-x-hidden md:overflow-y-auto shrink-0">
         <ToolBtn
           id="text"
           icon={Type}
           label="Text"
           onClick={() => execCmd("removeFormat")}
         />
-        <div className="w-12 h-[1px] bg-gray-100 my-1 shrink-0" />
+        <div className="h-8 md:h-[1px] w-[1px] md:w-12 bg-gray-100 mx-1 md:my-1 shrink-0" />
         <ToolBtn
           id="pen"
           icon={PenTool}
@@ -145,7 +145,7 @@ export default function RichEditor({
           label="Eraser"
           onClick={() => execCmd("removeFormat")}
         />
-        <div className="w-12 h-[1px] bg-gray-100 my-1 shrink-0" />
+        <div className="h-8 md:h-[1px] w-[1px] md:w-12 bg-gray-100 mx-1 md:my-1 shrink-0" />
         <ToolBtn
           id="meaning"
           icon={Book}
@@ -166,7 +166,7 @@ export default function RichEditor({
 
       {/* Center Document Workspace */}
       <div className="flex-1 flex flex-col relative overflow-hidden bg-gray-100/50">
-        <div className="flex-1 overflow-auto flex justify-center py-10 px-4">
+        <div className="flex-1 overflow-auto flex justify-center py-4 md:py-10 px-2 md:px-4">
           <div className="bg-white shadow-2xl rounded-sm w-full max-w-[800px] min-h-[1056px] relative flex flex-col border border-gray-200">
             {/* Editor area - simulating an A4 page */}
             <div
@@ -178,7 +178,7 @@ export default function RichEditor({
                 if (onChange) onChange(e.currentTarget.innerHTML);
               }}
               data-placeholder={placeholder}
-              className="flex-1 outline-none p-12 text-[#111] leading-relaxed cursor-text"
+              className="flex-1 outline-none p-6 md:p-12 text-[#111] leading-relaxed cursor-text"
               style={{
                 fontSize: `${fontSize}px`,
                 fontFamily: "Inter, sans-serif",
@@ -192,7 +192,7 @@ export default function RichEditor({
       </div>
 
       {/* Right Sidebar Properties Panel */}
-      <div className="w-64 bg-white border-l border-gray-200 flex flex-col p-5 gap-6 z-20 shadow-sm shrink-0 overflow-y-auto">
+      <div className="w-full md:w-64 bg-white border-t md:border-t-0 md:border-l border-gray-200 flex flex-col p-5 gap-6 z-20 shadow-sm shrink-0 overflow-y-auto max-h-[40vh] md:max-h-full">
         <div>
           <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
             Properties
