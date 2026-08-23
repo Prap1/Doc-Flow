@@ -178,7 +178,7 @@ export default function Home() {
           variants={item}
           className="flex flex-col items-center w-full max-w-5xl px-4"
         >
-          <div className="flex flex-row w-full gap-8 mb-8">
+          <div className="flex flex-col lg:flex-row w-full gap-8 mb-8">
             {/* Left side: Upload/Dropzone & Select file */}
             <div className="flex-1 flex flex-col gap-5 p-8 rounded-3xl bg-white shadow-[0_0_40px_rgba(139,92,246,0.15)] transition-colors">
               <input
