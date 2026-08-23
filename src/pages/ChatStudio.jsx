@@ -227,31 +227,58 @@ export default function ChatStudio() {
     }
   };
 
-  // Save post to backend
+  // Post directly (bypass backend save)
   const handleSaveToServer = async () => {
-    setSaving(true);
-    try {
-      const post = await createPost({
-        type: activeType,
-        title,
-        content,
-        author_name: authorName,
-        avatar,
-        bg,
-        reactions,
-      });
-      setSavedPostId(post.id);
-      // Upload voice if recorded
-      if (voiceBlob) {
-        await uploadVoice(post.id, voiceBlob);
-        showToast("Post & voice saved! Share link ready.", "success");
-      } else {
-        showToast("Post saved to server!", "success");
+    if (activeType === "post") {
+      const encodedText = encodeURIComponent(`${title}\n\n${plainText}`);
+      // Use the current page URL as a fallback for platforms that require a URL to open the share dialog
+      const dummyUrl = encodeURIComponent(window.location.origin);
+
+      let url = "";
+      switch (socialPlatform) {
+        case "whatsapp":
+          url = `https://api.whatsapp.com/send?text=${encodedText}`;
+          break;
+        case "telegram":
+          url = `https://t.me/share/url?url=${dummyUrl}&text=${encodedText}`;
+          break;
+        case "facebook":
+          // Facebook requires a URL to open the sharer dialog. We use dummyUrl and pass text as quote.
+          url = `https://www.facebook.com/sharer/sharer.php?u=${dummyUrl}&quote=${encodedText}`;
+          break;
+        case "linkedin":
+          url = `https://www.linkedin.com/sharing/share-offsite/?url=${dummyUrl}`;
+          navigator.clipboard.writeText(`${title}\n\n${plainText}`);
+          showToast("Text copied! LinkedIn requires you to paste the text manually.", "success");
+          break;
+        case "instagram":
+          // Instagram does not have a web "share" URL. We open the site and copy text.
+          url = "https://www.instagram.com/";
+          navigator.clipboard.writeText(`${title}\n\n${plainText}`);
+          showToast("Copied to clipboard! Instagram web doesn't have a direct post link, please paste your text.", "success");
+          break;
+        case "youtube":
+          url = "https://studio.youtube.com/";
+          navigator.clipboard.writeText(`${title}\n\n${plainText}`);
+          showToast("Copied to clipboard! Paste it in YouTube Studio.", "success");
+          break;
+        case "snapchat":
+          url = "https://www.snapchat.com/";
+          navigator.clipboard.writeText(`${title}\n\n${plainText}`);
+          showToast("Copied to clipboard! Open Snapchat app to paste.", "success");
+          break;
+        case "google apps":
+          url = "https://workspace.google.com/";
+          navigator.clipboard.writeText(`${title}\n\n${plainText}`);
+          showToast("Copied to clipboard! Paste it in your Google App.", "success");
+          break;
       }
-    } catch (e) {
-      showToast(`Save failed: ${e.message}`, "error");
+      if (url) {
+        setTimeout(() => window.open(url, "_blank"), 500);
+      }
+    } else {
+      showToast("Backend saving is currently disabled. Use the Post button for Social Posts to redirect.", "info");
     }
-    setSaving(false);
   };
 
   // Load saved posts
@@ -462,7 +489,7 @@ export default function ChatStudio() {
                               fontWeight: 600,
                             }}
                           >
-                            Aapka naam (chat me jaisa dikhta hai)
+                            Your Name
                           </label>
                           <input
                             type="text"
@@ -503,7 +530,7 @@ export default function ChatStudio() {
                             fontWeight: 600,
                           }}
                         >
-                          Output file ka naam (bina extension ke)
+                          File Name
                         </label>
                         <input
                           type="text"
@@ -640,7 +667,7 @@ export default function ChatStudio() {
                           marginBottom: 20,
                         }}
                       >
-                        Date range khali chhod do agar poori chat chahiye.
+                        Leave the date range blank to include the entire chat history.
                       </div>
 
                       <div style={{ textAlign: "center" }}>
@@ -913,7 +940,7 @@ export default function ChatStudio() {
                         }}
                       >
                         {saving ? <RefreshCw size={15} /> : <Save size={15} />}
-                        {saving ? "Saving…" : "Save to Server"}
+                        {saving ? "Posting…" : "Post"}
                       </button>
                       <button
                         className="btn btn-secondary"
