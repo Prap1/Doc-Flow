@@ -701,14 +701,24 @@ export default function ChatStudio() {
                             Filtered Messages: {waResult.filtered_messages}
                           </p>
                           <div style={{ display: "flex", gap: 12 }}>
-                            <a
-                              href={waResult.html_url}
-                              target="_blank"
-                              rel="noreferrer"
+                            <button
+                              onClick={async () => {
+                                const newWin = window.open("", "_blank");
+                                newWin.document.write("Loading chat...");
+                                try {
+                                  const res = await fetch(waResult.html_url);
+                                  const html = await res.text();
+                                  newWin.document.open();
+                                  newWin.document.write(html);
+                                  newWin.document.close();
+                                } catch (err) {
+                                  newWin.location.href = waResult.html_url;
+                                }
+                              }}
                               className="btn btn-secondary"
                             >
                               <Eye size={15} /> View Full HTML
-                            </a>
+                            </button>
                             <button
                               className="btn btn-primary"
                               onClick={() => {

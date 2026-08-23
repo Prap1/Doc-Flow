@@ -317,16 +317,16 @@ export default function PdfCanvasEditor({ file, onCancel, onSave }) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedElementId, elements, history, historyIndex, deleteElement, handleRedo, handleUndo]);
 
-  const saveHistory = (newElements) => {
+  function saveHistory(newElements) {
     const newHistory = history.slice(0, historyIndex + 1);
     newHistory.push(newElements);
     setHistory(newHistory);
     setHistoryIndex(newHistory.length - 1);
     setElements(newElements);
     elementsRef.current = newElements;
-  };
+  }
 
-  const handleUndo = () => {
+  function handleUndo() {
     if (historyIndex > 0) {
       const prev = history[historyIndex - 1];
       setHistoryIndex(historyIndex - 1);
@@ -334,9 +334,9 @@ export default function PdfCanvasEditor({ file, onCancel, onSave }) {
       elementsRef.current = prev;
       setSelectedElementId(null);
     }
-  };
+  }
 
-  const handleRedo = () => {
+  function handleRedo() {
     if (historyIndex < history.length - 1) {
       const next = history[historyIndex + 1];
       setHistoryIndex(historyIndex + 1);
@@ -344,7 +344,7 @@ export default function PdfCanvasEditor({ file, onCancel, onSave }) {
       elementsRef.current = next;
       setSelectedElementId(null);
     }
-  };
+  }
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -758,18 +758,20 @@ export default function PdfCanvasEditor({ file, onCancel, onSave }) {
     }
   };
 
-  const updateElement = (id, newProps) =>
+  function updateElement(id, newProps) {
     setElements((prev) =>
       prev.map((el) => (el.id === id ? { ...el, ...newProps } : el)),
     );
-  const updateElementAndSaveHistory = (id, newProps) =>
+  }
+  function updateElementAndSaveHistory(id, newProps) {
     saveHistory(
       elements.map((el) => (el.id === id ? { ...el, ...newProps } : el)),
     );
-  const deleteElement = (id) => {
+  }
+  function deleteElement(id) {
     saveHistory(elements.filter((el) => el.id !== id));
     setSelectedElementId(null);
-  };
+  }
   const toggleFormat = (format, currentState, setter) => {
     setter(!currentState);
     if (selectedElementId)

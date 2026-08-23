@@ -21,7 +21,13 @@ export default function Footer() {
         </div>
 
         {/* Center: Quick Links */}
-        <nav className="flex items-center gap-6 text-sm text-white/50 font-medium">
+        <nav className="flex items-center gap-6 text-sm text-white/50 font-medium flex-wrap justify-center">
+          <Link to="/how-it-works" className="hover:text-indigo-400 transition-colors">
+            How It Works
+          </Link>
+          <Link to="/faqs" className="hover:text-indigo-400 transition-colors">
+            FAQs
+          </Link>
           <Link
             to="/privacy"
             className="hover:text-indigo-400 transition-colors"
@@ -31,12 +37,9 @@ export default function Footer() {
           <Link to="/terms" className="hover:text-indigo-400 transition-colors">
             Terms of Service
           </Link>
-          <a
-            href="mailto:info@apnipdfs.com"
-            className="hover:text-indigo-400 transition-colors"
-          >
+          <Link to="/contact" className="hover:text-indigo-400 transition-colors">
             Contact
-          </a>
+          </Link>
         </nav>
 
         {/* Right Side: Socials */}

@@ -15,6 +15,9 @@ import WhatsAppStudio from "./pages/WhatsAppStudio";
 import SharePost from "./pages/SharePost";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsConditions from "./pages/TermsConditions";
+import Contact from "./pages/Contact";
+import Faqs from "./pages/Faqs";
+import HowItWorks from "./pages/HowItWorks";
 
 function AppRoutes() {
   const location = useLocation();
@@ -32,6 +35,9 @@ function AppRoutes() {
         <Route path="/share/:id" element={<SharePost />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsConditions />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/faqs" element={<Faqs />} />
+        <Route path="/how-it-works" element={<HowItWorks />} />
       </Routes>
     </AnimatePresence>
   );

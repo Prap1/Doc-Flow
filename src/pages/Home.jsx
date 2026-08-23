@@ -17,6 +17,12 @@ import {
   Eraser,
   Palette,
   Type,
+  Bold,
+  Italic,
+  Underline,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
 } from "lucide-react";
 import Logo from "../assets/Logo";
 import { showToast } from "../components/Toast";
@@ -94,17 +100,17 @@ export default function Home() {
       const name = file.name.toLowerCase();
 
       if (name.endsWith(".pdf")) {
-        navigate("/pdf", { state: { importedFile: file } });
+        navigate("/pdf/edit", { state: { importedFile: file } });
       } else if (name.endsWith(".docx") || name.endsWith(".doc")) {
-        navigate("/word", { state: { importedFile: file } });
+        navigate("/word/edit", { state: { importedFile: file } });
       } else if (
         name.endsWith(".xlsx") ||
         name.endsWith(".xls") ||
         name.endsWith(".csv")
       ) {
-        navigate("/excel", { state: { importedFile: file } });
+        navigate("/excel/edit", { state: { importedFile: file } });
       } else if (name.match(/\.(jpg|jpeg|png|webp|gif)$/)) {
-        navigate("/image", { state: { importedFile: file } });
+        navigate("/image/edit", { state: { importedFile: file } });
       } else {
         showToast(`File "${file.name}" loaded into memory.`, "success");
       }
@@ -187,7 +193,7 @@ export default function Home() {
               >
                 <UploadCloud size={48} className="text-indigo-500 mb-4" />
                 <p className="text-lg font-medium text-gray-900 mb-2 text-center">
-                  Create your own things and share
+                  Create Your Own Things....
                 </p>
                 <p className="text-sm text-gray-500 text-center">
                   Drag and drop or click to upload
@@ -209,8 +215,74 @@ export default function Home() {
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex gap-1.5 p-2 bg-white/10 rounded-t-xl border border-white/10 border-b-0 items-center overflow-x-auto"
+                    className="flex gap-1.5 p-2 bg-gray-100 rounded-t-xl border border-gray-200 border-b-0 items-center overflow-x-auto"
                   >
+                    <button
+                      title="Bold"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        document.execCommand("bold", false, null);
+                      }}
+                      className="p-1 bg-transparent border-none cursor-pointer text-gray-600 hover:text-gray-900"
+                    >
+                      <Bold size={16} />
+                    </button>
+                    <button
+                      title="Italic"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        document.execCommand("italic", false, null);
+                      }}
+                      className="p-1 bg-transparent border-none cursor-pointer text-gray-600 hover:text-gray-900"
+                    >
+                      <Italic size={16} />
+                    </button>
+                    <button
+                      title="Underline"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        document.execCommand("underline", false, null);
+                      }}
+                      className="p-1 bg-transparent border-none cursor-pointer text-gray-600 hover:text-gray-900"
+                    >
+                      <Underline size={16} />
+                    </button>
+
+                    <div className="w-[1px] h-4 bg-gray-300 mx-1" />
+
+                    <button
+                      title="Align Left"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        document.execCommand("justifyLeft", false, null);
+                      }}
+                      className="p-1 bg-transparent border-none cursor-pointer text-gray-600 hover:text-gray-900"
+                    >
+                      <AlignLeft size={16} />
+                    </button>
+                    <button
+                      title="Align Center"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        document.execCommand("justifyCenter", false, null);
+                      }}
+                      className="p-1 bg-transparent border-none cursor-pointer text-gray-600 hover:text-gray-900"
+                    >
+                      <AlignCenter size={16} />
+                    </button>
+                    <button
+                      title="Align Right"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        document.execCommand("justifyRight", false, null);
+                      }}
+                      className="p-1 bg-transparent border-none cursor-pointer text-gray-600 hover:text-gray-900"
+                    >
+                      <AlignRight size={16} />
+                    </button>
+
+                    <div className="w-[1px] h-4 bg-gray-300 mx-1" />
+
                     <button
                       title="Notebook Font"
                       onMouseDown={(e) => {
@@ -221,7 +293,7 @@ export default function Home() {
                           "Comic Sans MS",
                         );
                       }}
-                      className="p-1 bg-transparent border-none cursor-pointer text-white/70 hover:text-white"
+                      className="p-1 bg-transparent border-none cursor-pointer text-gray-600 hover:text-gray-900"
                     >
                       <Book size={16} />
                     </button>
@@ -231,7 +303,7 @@ export default function Home() {
                         e.preventDefault();
                         document.execCommand("foreColor", false, "#3b82f6");
                       }}
-                      className="p-1 bg-transparent border-none cursor-pointer text-white/70 hover:text-white"
+                      className="p-1 bg-transparent border-none cursor-pointer text-gray-600 hover:text-gray-900"
                     >
                       <PenTool size={16} />
                     </button>
@@ -241,7 +313,7 @@ export default function Home() {
                         e.preventDefault();
                         document.execCommand("hiliteColor", false, "#fef08a");
                       }}
-                      className="p-1 bg-transparent border-none cursor-pointer text-white/70 hover:text-white"
+                      className="p-1 bg-transparent border-none cursor-pointer text-gray-600 hover:text-gray-900"
                     >
                       <Pencil size={16} />
                     </button>
@@ -251,15 +323,15 @@ export default function Home() {
                         e.preventDefault();
                         document.execCommand("removeFormat", false, null);
                       }}
-                      className="p-1 bg-transparent border-none cursor-pointer text-white/70 hover:text-white"
+                      className="p-1 bg-transparent border-none cursor-pointer text-gray-600 hover:text-gray-900"
                     >
                       <Eraser size={16} />
                     </button>
 
-                    <div className="w-[1px] h-4 bg-white/20 mx-1" />
+                    <div className="w-[1px] h-4 bg-gray-300 mx-1" />
 
                     <label className="flex items-center cursor-pointer">
-                      <Palette size={16} className="text-white/70 mr-1" />
+                      <Palette size={16} className="text-gray-600 mr-1" />
                       <input
                         title="Color Selection"
                         type="color"
@@ -275,7 +347,7 @@ export default function Home() {
                     </label>
 
                     <div className="flex items-center">
-                      <Type size={16} className="text-white/70 mr-1" />
+                      <Type size={16} className="text-gray-600 mr-1" />
                       <select
                         title="Font Size"
                         onChange={(e) =>
@@ -285,7 +357,7 @@ export default function Home() {
                             e.target.value,
                           )
                         }
-                        className="border border-white/20 rounded p-0.5 text-black text-xs bg-white/90"
+                        className="border border-gray-300 rounded p-0.5 text-black text-xs bg-white"
                       >
                         <option value="2">Small</option>
                         <option value="3" selected>
@@ -296,7 +368,7 @@ export default function Home() {
                       </select>
                     </div>
 
-                    <div className="w-[1px] h-4 bg-white/20 mx-1" />
+                    <div className="w-[1px] h-4 bg-gray-300 mx-1" />
 
                     <button
                       title="Add Meaning"
@@ -307,7 +379,7 @@ export default function Home() {
                           setSavedRange(sel.getRangeAt(0));
                         setShowMeaningPopup(true);
                       }}
-                      className="bg-white/10 border border-white/20 rounded-md cursor-pointer px-2 py-1 text-xs font-bold text-white hover:bg-white/20"
+                      className="bg-gray-200 border border-gray-300 rounded-md cursor-pointer px-2 py-1 text-xs font-bold text-gray-700 hover:bg-gray-300"
                     >
                       **
                     </button>
@@ -327,7 +399,7 @@ export default function Home() {
                 >
                   {!isTyping && (
                     <span className="text-gray-400 pointer-events-none">
-                      Create your own wish to all things.....
+                      Typing...
                     </span>
                   )}
                 </div>
