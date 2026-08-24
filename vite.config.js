@@ -7,17 +7,17 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:8000',
+        target: 'https://doc-flow-backend-master.onrender.com',
         changeOrigin: true,
         secure: false,
       },
       '/media': {
-        target: 'http://localhost:8000',
+        target: 'https://doc-flow-backend-master.onrender.com',
         changeOrigin: true,
         secure: false,
       },
       '/wa_api': {
-        target: 'http://localhost:8001',
+        target: 'https://doc-flow-backend-master.onrender.com',
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/wa_api/, ''),
