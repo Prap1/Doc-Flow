@@ -153,6 +153,9 @@ export default function PdfCanvasEditor({ file, onCancel, onSave }) {
       const span = e.target.closest(".react-pdf__Page__textContent span");
       if (!span) return;
 
+      e.preventDefault();
+      e.stopPropagation();
+
       const text = span.textContent;
       if (!text || text.trim() === "") return;
 
@@ -185,6 +188,13 @@ export default function PdfCanvasEditor({ file, onCancel, onSave }) {
 
       saveHistory([...elements, newEl]);
       setSelectedElementId(newId);
+
+      // Forcefully blur to prevent mobile keyboard from popping up automatically
+      setTimeout(() => {
+        if (document.activeElement && document.activeElement.tagName === 'INPUT') {
+          document.activeElement.blur();
+        }
+      }, 50);
     };
 
     wrapper.addEventListener("click", handleDelegatedClick);
@@ -934,7 +944,7 @@ export default function PdfCanvasEditor({ file, onCancel, onSave }) {
   );
 
   return (
-    <div className="flex h-[85vh] border border-gray-200 rounded-2xl overflow-hidden bg-gray-50 text-gray-800 shadow-xl font-sans">
+    <div className="flex h-[85vh] relative border border-gray-200 rounded-2xl overflow-hidden bg-gray-50 text-gray-800 shadow-xl font-sans">
       <input
         type="file"
         ref={fileInputRef}
@@ -964,41 +974,41 @@ export default function PdfCanvasEditor({ file, onCancel, onSave }) {
       {/* Center Canvas Workspace */}
       <div className="flex-1 flex flex-col relative overflow-hidden bg-gray-100/50">
         {/* Top Header */}
-        <div className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 shadow-sm z-10 shrink-0">
-          <div className="flex items-center gap-3">
+        <div className="min-h-[4rem] py-2 md:py-0 bg-white border-b border-gray-200 flex flex-wrap items-center justify-between px-2 md:px-6 shadow-sm z-10 shrink-0 gap-2">
+          <div className="flex items-center gap-2 md:gap-3">
             <div className="flex gap-1 bg-gray-50 rounded-lg p-1 border border-gray-200">
               <button
-                className={`p-2 rounded hover:bg-white hover:shadow-sm ${historyIndex === 0 ? "opacity-30" : ""}`}
+                className={`p-1 md:p-2 rounded hover:bg-white hover:shadow-sm ${historyIndex === 0 ? "opacity-30" : ""}`}
                 onClick={handleUndo}
                 title="Undo (Ctrl+Z)"
               >
-                <Undo size={18} />
+                <Undo size={16} className="md:w-[18px] md:h-[18px]" />
               </button>
               <button
-                className={`p-2 rounded hover:bg-white hover:shadow-sm ${historyIndex === history.length - 1 ? "opacity-30" : ""}`}
+                className={`p-1 md:p-2 rounded hover:bg-white hover:shadow-sm ${historyIndex === history.length - 1 ? "opacity-30" : ""}`}
                 onClick={handleRedo}
                 title="Redo (Ctrl+Shift+Z)"
               >
-                <Redo size={18} />
+                <Redo size={16} className="md:w-[18px] md:h-[18px]" />
               </button>
             </div>
-            <div className="flex items-center gap-1 bg-gray-50 rounded-lg p-1 border border-gray-200">
+            <div className="flex items-center gap-1 bg-gray-50 rounded-lg p-1 border border-gray-200 hidden sm:flex">
               <button
-                className="p-2 rounded hover:bg-white hover:shadow-sm"
+                className="p-1 md:p-2 rounded hover:bg-white hover:shadow-sm"
                 onClick={zoomOut}
                 title="Zoom out"
               >
                 <ZoomOut size={16} />
               </button>
               <button
-                className="text-xs font-medium w-12 text-center hover:bg-white rounded py-1"
+                className="text-xs font-medium w-10 md:w-12 text-center hover:bg-white rounded py-1"
                 onClick={zoomReset}
                 title="Reset zoom"
               >
                 {Math.round(zoom * 100)}%
               </button>
               <button
-                className="p-2 rounded hover:bg-white hover:shadow-sm"
+                className="p-1 md:p-2 rounded hover:bg-white hover:shadow-sm"
                 onClick={zoomIn}
                 title="Zoom in"
               >
@@ -1006,23 +1016,25 @@ export default function PdfCanvasEditor({ file, onCancel, onSave }) {
               </button>
             </div>
             {pendingImage && (
-              <span className="text-sm font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
-                Click canvas to place image
+              <span className="text-[10px] md:text-sm font-medium text-blue-600 bg-blue-50 px-2 md:px-3 py-1 rounded-full border border-blue-200">
+                Place image
               </span>
             )}
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 md:gap-3 ml-auto">
             <button
-              className="px-5 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition"
+              className="px-3 md:px-5 py-1.5 md:py-2 text-xs md:text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition"
               onClick={onCancel}
             >
               Cancel
             </button>
             <button
-              className="px-5 py-2 text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 rounded-lg shadow-md transition flex items-center gap-2"
+              className="px-3 md:px-5 py-1.5 md:py-2 text-xs md:text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 rounded-lg shadow-md transition flex items-center gap-1 md:gap-2"
               onClick={handleSave}
             >
-              <Download size={16} /> Preview & Download
+              <Download size={14} className="md:w-4 md:h-4" /> 
+              <span className="hidden sm:inline">Preview & Download</span>
+              <span className="sm:hidden">Save</span>
             </button>
           </div>
         </div>
@@ -1183,7 +1195,7 @@ export default function PdfCanvasEditor({ file, onCancel, onSave }) {
                                   cursor: "text",
                                   pointerEvents: "auto",
                                 }}
-                                autoFocus={isSelected}
+                                autoFocus={false}
                               />
                               {isSelected && (
                                 <button
@@ -1452,7 +1464,7 @@ export default function PdfCanvasEditor({ file, onCancel, onSave }) {
 
       {/* Right Sidebar Properties Panel */}
       {needsPropertiesPanel && (
-        <div className="w-64 bg-white border-l border-gray-200 flex flex-col p-5 gap-6 z-20 shadow-sm shrink-0 overflow-y-auto">
+        <div className="absolute bottom-0 left-20 right-0 h-[45%] md:h-auto md:relative w-auto md:w-64 bg-white border-t md:border-t-0 md:border-l border-gray-200 flex flex-col p-5 gap-6 z-30 shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.1)] md:shadow-sm shrink-0 overflow-y-auto">
           <div>
             <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
               Properties
