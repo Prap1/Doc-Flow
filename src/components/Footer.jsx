@@ -40,6 +40,9 @@ export default function Footer() {
           <Link to="/contact" className="hover:text-indigo-400 transition-colors">
             Contact
           </Link>
+          <Link to="/sitemap" className="hover:text-indigo-400 transition-colors">
+            Sitemap
+          </Link>
         </nav>
 
         {/* Right Side: Socials */}

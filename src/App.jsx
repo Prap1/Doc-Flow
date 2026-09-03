@@ -18,6 +18,7 @@ import TermsConditions from "./pages/TermsConditions";
 import Contact from "./pages/Contact";
 import Faqs from "./pages/Faqs";
 import HowItWorks from "./pages/HowItWorks";
+import Sitemap from "./pages/Sitemap";
 
 function AppRoutes() {
   const location = useLocation();
@@ -38,6 +39,7 @@ function AppRoutes() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/faqs" element={<Faqs />} />
         <Route path="/how-it-works" element={<HowItWorks />} />
+        <Route path="/sitemap" element={<Sitemap />} />
       </Routes>
     </AnimatePresence>
   );
