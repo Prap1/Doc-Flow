@@ -7,17 +7,17 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://doc-flow-backend-master.onrender.com',
+        target: 'https://doc-flow-backend-master-production.up.railway.app',
         changeOrigin: true,
         secure: false,
       },
       '/media': {
-        target: 'https://doc-flow-backend-master.onrender.com',
+        target: 'https://doc-flow-backend-master-production.up.railway.app',
         changeOrigin: true,
         secure: false,
       },
       '/wa_api': {
-        target: 'https://doc-flow-backend-master.onrender.com',
+        target: 'https://doc-flow-backend-master-production.up.railway.app',
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/wa_api/, ''),
