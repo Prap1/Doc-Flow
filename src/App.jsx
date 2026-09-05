@@ -7,7 +7,7 @@ import { Toaster } from "./components/Toast";
 import Home from "./pages/Home";
 import PdfTools from "./pages/PdfTools";
 import WordTools from "./pages/WordTools";
-// import DocsTools from './pages/DocsTools';
+
 import ExcelTools from "./pages/ExcelTools";
 import ImageTools from "./pages/ImageTools";
 import ChatStudio from "./pages/ChatStudio";
