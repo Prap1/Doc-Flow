@@ -913,7 +913,7 @@ export default function PdfCanvasEditor({ file, onCancel, onSave }) {
 
   const ToolBtn = ({ id, icon: Icon, label, disabled }) => (
     <button
-      className={`w-full flex flex-col items-center justify-center gap-1 p-3 rounded-lg transition-colors ${activeTool === id ? "bg-blue-50 text-blue-600 shadow-sm border border-blue-100" : "text-gray-600 hover:bg-gray-100"} ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+      className={`min-w-[54px] md:min-w-0 w-auto md:w-full flex flex-col items-center justify-center gap-1 py-1.5 px-2 md:p-3 rounded-lg transition-colors shrink-0 ${activeTool === id ? "bg-blue-50 text-blue-600 shadow-sm border border-blue-100" : "text-gray-600 hover:bg-gray-100"} ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
       onClick={() => {
         if (disabled) return;
         if (id === "image") {
@@ -928,8 +928,8 @@ export default function PdfCanvasEditor({ file, onCancel, onSave }) {
       }}
       title={label}
     >
-      <Icon size={22} strokeWidth={activeTool === id ? 2.5 : 2} />
-      <span className="text-[10px] font-medium hidden md:block">{label}</span>
+      <Icon size={18} className="md:w-[22px] md:h-[22px]" strokeWidth={activeTool === id ? 2.5 : 2} />
+      <span className="text-[10px] font-medium whitespace-nowrap block">{label}</span>
     </button>
   );
 
@@ -944,7 +944,7 @@ export default function PdfCanvasEditor({ file, onCancel, onSave }) {
   );
 
   return (
-    <div className="flex h-[85vh] relative border border-gray-200 rounded-2xl overflow-hidden bg-gray-50 text-gray-800 shadow-xl font-sans">
+    <div className="flex flex-col h-[85vh] relative border border-gray-200 rounded-2xl overflow-hidden bg-gray-50 text-gray-800 shadow-xl font-sans">
       <input
         type="file"
         ref={fileInputRef}
@@ -953,94 +953,96 @@ export default function PdfCanvasEditor({ file, onCancel, onSave }) {
         onChange={handleImageUpload}
       />
 
-      {/* Left Sidebar Toolbar (PDF Guru Style) */}
-      <div className="w-20 md:w-24 bg-white border-r border-gray-200 flex flex-col items-center py-4 gap-2 z-20 shadow-sm overflow-y-auto shrink-0">
-        <ToolBtn id="selection" icon={MousePointer2} label="Select" />
-        <div className="w-12 h-[1px] bg-gray-100 my-1 shrink-0" />
-        <ToolBtn id="edit" icon={FileEdit} label="Edit PDF" />
-        <ToolBtn id="text" icon={Type} label="Add Text" />
-        <ToolBtn id="image" icon={ImageIcon} label="Image" />
-        <ToolBtn id="sign" icon={PenLine} label="Sign" />
-        <div className="w-12 h-[1px] bg-gray-100 my-1 shrink-0" />
-        <ToolBtn id="draw" icon={PenTool} label="Draw" />
-        <ToolBtn id="highlight" icon={Highlighter} label="Highlight" />
-        <ToolBtn id="erase" icon={Eraser} label="Eraser" />
-        <div className="w-12 h-[1px] bg-gray-100 my-1 shrink-0" />
-        <ToolBtn id="arrow" icon={MoveUpRight} label="Arrow" />
-        <ToolBtn id="check" icon={Check} label="Check" />
-        <ToolBtn id="cross" icon={X} label="Cross" />
+      {/* Top Header */}
+      <div className="min-h-[3.5rem] md:min-h-[4rem] py-2 md:py-0 bg-white border-b border-gray-200 flex flex-wrap items-center justify-between px-3 md:px-6 shadow-sm z-30 shrink-0 gap-2">
+        <div className="flex items-center gap-2 md:gap-3">
+          <div className="flex gap-1 bg-gray-50 rounded-lg p-1 border border-gray-200">
+            <button
+              className={`p-1 md:p-2 rounded hover:bg-white hover:shadow-sm ${historyIndex === 0 ? "opacity-30" : ""}`}
+              onClick={handleUndo}
+              title="Undo (Ctrl+Z)"
+            >
+              <Undo size={16} className="md:w-[18px] md:h-[18px]" />
+            </button>
+            <button
+              className={`p-1 md:p-2 rounded hover:bg-white hover:shadow-sm ${historyIndex === history.length - 1 ? "opacity-30" : ""}`}
+              onClick={handleRedo}
+              title="Redo (Ctrl+Shift+Z)"
+            >
+              <Redo size={16} className="md:w-[18px] md:h-[18px]" />
+            </button>
+          </div>
+          <div className="flex items-center gap-1 bg-gray-50 rounded-lg p-1 border border-gray-200 hidden sm:flex">
+            <button
+              className="p-1 md:p-2 rounded hover:bg-white hover:shadow-sm"
+              onClick={zoomOut}
+              title="Zoom out"
+            >
+              <ZoomOut size={16} />
+            </button>
+            <button
+              className="text-xs font-medium w-10 md:w-12 text-center hover:bg-white rounded py-1"
+              onClick={zoomReset}
+              title="Reset zoom"
+            >
+              {Math.round(zoom * 100)}%
+            </button>
+            <button
+              className="p-1 md:p-2 rounded hover:bg-white hover:shadow-sm"
+              onClick={zoomIn}
+              title="Zoom in"
+            >
+              <ZoomIn size={16} />
+            </button>
+          </div>
+          {pendingImage && (
+            <span className="text-[10px] md:text-sm font-medium text-blue-600 bg-blue-50 px-2 md:px-3 py-1 rounded-full border border-blue-200">
+              Place image
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-2 md:gap-3 ml-auto">
+          <button
+            className="px-3 md:px-5 py-1.5 md:py-2 text-xs md:text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition"
+            onClick={onCancel}
+          >
+            Cancel
+          </button>
+          <button
+            className="px-3 md:px-5 py-1.5 md:py-2 text-xs md:text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 rounded-lg shadow-md transition flex items-center gap-1 md:gap-2"
+            onClick={handleSave}
+          >
+            <Download size={14} className="md:w-4 md:h-4" /> 
+            <span className="hidden sm:inline">Preview & Download</span>
+            <span className="sm:hidden">Save</span>
+          </button>
+        </div>
       </div>
 
-      {/* Center Canvas Workspace */}
-      <div className="flex-1 flex flex-col relative overflow-hidden bg-gray-100/50">
-        {/* Top Header */}
-        <div className="min-h-[4rem] py-2 md:py-0 bg-white border-b border-gray-200 flex flex-wrap items-center justify-between px-2 md:px-6 shadow-sm z-10 shrink-0 gap-2">
-          <div className="flex items-center gap-2 md:gap-3">
-            <div className="flex gap-1 bg-gray-50 rounded-lg p-1 border border-gray-200">
-              <button
-                className={`p-1 md:p-2 rounded hover:bg-white hover:shadow-sm ${historyIndex === 0 ? "opacity-30" : ""}`}
-                onClick={handleUndo}
-                title="Undo (Ctrl+Z)"
-              >
-                <Undo size={16} className="md:w-[18px] md:h-[18px]" />
-              </button>
-              <button
-                className={`p-1 md:p-2 rounded hover:bg-white hover:shadow-sm ${historyIndex === history.length - 1 ? "opacity-30" : ""}`}
-                onClick={handleRedo}
-                title="Redo (Ctrl+Shift+Z)"
-              >
-                <Redo size={16} className="md:w-[18px] md:h-[18px]" />
-              </button>
-            </div>
-            <div className="flex items-center gap-1 bg-gray-50 rounded-lg p-1 border border-gray-200 hidden sm:flex">
-              <button
-                className="p-1 md:p-2 rounded hover:bg-white hover:shadow-sm"
-                onClick={zoomOut}
-                title="Zoom out"
-              >
-                <ZoomOut size={16} />
-              </button>
-              <button
-                className="text-xs font-medium w-10 md:w-12 text-center hover:bg-white rounded py-1"
-                onClick={zoomReset}
-                title="Reset zoom"
-              >
-                {Math.round(zoom * 100)}%
-              </button>
-              <button
-                className="p-1 md:p-2 rounded hover:bg-white hover:shadow-sm"
-                onClick={zoomIn}
-                title="Zoom in"
-              >
-                <ZoomIn size={16} />
-              </button>
-            </div>
-            {pendingImage && (
-              <span className="text-[10px] md:text-sm font-medium text-blue-600 bg-blue-50 px-2 md:px-3 py-1 rounded-full border border-blue-200">
-                Place image
-              </span>
-            )}
-          </div>
-          <div className="flex items-center gap-2 md:gap-3 ml-auto">
-            <button
-              className="px-3 md:px-5 py-1.5 md:py-2 text-xs md:text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition"
-              onClick={onCancel}
-            >
-              Cancel
-            </button>
-            <button
-              className="px-3 md:px-5 py-1.5 md:py-2 text-xs md:text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 rounded-lg shadow-md transition flex items-center gap-1 md:gap-2"
-              onClick={handleSave}
-            >
-              <Download size={14} className="md:w-4 md:h-4" /> 
-              <span className="hidden sm:inline">Preview & Download</span>
-              <span className="sm:hidden">Save</span>
-            </button>
-          </div>
+      {/* Editor Body: Left Sidebar Toolbar on Desktop, Top Horizontal Toolbar on Mobile */}
+      <div className="flex-1 flex flex-col md:flex-row relative overflow-hidden min-h-0">
+        {/* Toolbar (Horizontal on mobile, vertical sidebar on desktop) */}
+        <div className="w-full md:w-24 bg-white border-b md:border-b-0 md:border-r border-gray-200 flex flex-row md:flex-col items-center py-2 md:py-4 px-2 md:px-1 gap-1 md:gap-2 z-20 shadow-sm overflow-x-auto md:overflow-y-auto shrink-0">
+          <ToolBtn id="selection" icon={MousePointer2} label="Select" />
+          <div className="h-6 w-[1px] md:w-12 md:h-[1px] bg-gray-200 my-0 mx-1 md:my-1 md:mx-0 shrink-0" />
+          <ToolBtn id="edit" icon={FileEdit} label="Edit PDF" />
+          <ToolBtn id="text" icon={Type} label="Add Text" />
+          <ToolBtn id="image" icon={ImageIcon} label="Image" />
+          <ToolBtn id="sign" icon={PenLine} label="Sign" />
+          <div className="h-6 w-[1px] md:w-12 md:h-[1px] bg-gray-200 my-0 mx-1 md:my-1 md:mx-0 shrink-0" />
+          <ToolBtn id="draw" icon={PenTool} label="Draw" />
+          <ToolBtn id="highlight" icon={Highlighter} label="Highlight" />
+          <ToolBtn id="erase" icon={Eraser} label="Eraser" />
+          <div className="h-6 w-[1px] md:w-12 md:h-[1px] bg-gray-200 my-0 mx-1 md:my-1 md:mx-0 shrink-0" />
+          <ToolBtn id="arrow" icon={MoveUpRight} label="Arrow" />
+          <ToolBtn id="check" icon={Check} label="Check" />
+          <ToolBtn id="cross" icon={X} label="Cross" />
         </div>
 
-        {/* Canvas Area */}
-        <div className="flex-1 overflow-auto flex justify-center py-10 px-4 relative">
+        {/* Center Canvas Workspace */}
+        <div className="flex-1 flex flex-col relative overflow-hidden bg-gray-100/50 min-h-0">
+          {/* Canvas Area */}
+          <div className="flex-1 overflow-auto flex justify-center py-6 md:py-10 px-2 md:px-4 relative">
           <Document
             file={file}
             onLoadSuccess={onDocumentLoadSuccess}
@@ -1464,11 +1466,25 @@ export default function PdfCanvasEditor({ file, onCancel, onSave }) {
 
       {/* Right Sidebar Properties Panel */}
       {needsPropertiesPanel && (
-        <div className="absolute bottom-0 left-20 right-0 h-[45%] md:h-auto md:relative w-auto md:w-64 bg-white border-t md:border-t-0 md:border-l border-gray-200 flex flex-col p-5 gap-6 z-30 shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.1)] md:shadow-sm shrink-0 overflow-y-auto">
+        <div className="absolute bottom-0 left-0 right-0 h-[45%] md:h-auto md:relative w-auto md:w-64 bg-white border-t md:border-t-0 md:border-l border-gray-200 flex flex-col p-4 md:p-5 gap-4 md:gap-6 z-30 shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.1)] md:shadow-sm shrink-0 overflow-y-auto">
           <div>
-            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
-              Properties
-            </h3>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                Properties
+              </h3>
+              <button
+                onClick={() => {
+                  setSelectedElementId(null);
+                  if (["arrow", "check", "cross", "erase"].includes(activeTool)) {
+                    setActiveTool("selection");
+                  }
+                }}
+                className="p-1 text-gray-400 hover:text-gray-600 md:hidden rounded"
+                title="Close"
+              >
+                <X size={16} />
+              </button>
+            </div>
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium text-gray-700">Color</span>
             </div>
@@ -1618,6 +1634,7 @@ export default function PdfCanvasEditor({ file, onCancel, onSave }) {
           )}
         </div>
       )}
+      </div>
 
       {/* Signature Modal */}
       {showSignatureModal && (
