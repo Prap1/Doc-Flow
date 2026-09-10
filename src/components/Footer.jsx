@@ -1,5 +1,6 @@
 import { Globe, Mail, MessageCircle, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
+import Logo from "./Logo";
 
 export default function Footer() {
   return (
@@ -7,12 +8,9 @@ export default function Footer() {
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
         {/* Left Side: Brand & Copyright */}
         <div className="flex flex-col items-center md:items-start gap-2">
-          <div className="font-outfit font-extrabold text-xl tracking-tight text-white/90">
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-400">
-              ApniPDFs
-            </span>{" "}
-            Pro
-          </div>
+          <Link to="/" className="inline-block group">
+            <Logo size={36} variant="horizontal" className="group-hover:opacity-95" />
+          </Link>
           <p className="text-white/40 text-sm flex items-center gap-1.5">
             Crafted with{" "}
             <Heart size={14} className="text-pink-500 fill-pink-500/20" /> by

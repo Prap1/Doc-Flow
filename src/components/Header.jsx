@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -19,7 +19,7 @@ import {
   Menu,
   X
 } from "lucide-react";
-import Logo from "../assets/Logo";
+import Logo from "./Logo";
 
 const toolsDropdown = [
   {
@@ -154,15 +154,9 @@ export default function Header() {
       animate={{ y: 0, opacity: 1 }}
     >
       <div className="flex items-center justify-between w-full md:w-auto md:gap-6 flex-1 h-full">
-        <div className="flex items-center gap-2">
-          <Logo size={28} />
-          <div className="font-outfit font-extrabold text-lg tracking-tight whitespace-nowrap">
-            <span className="bg-clip-text text-transparent bg-gradient-to-br from-indigo-400 to-cyan-400">
-              ApniPDFs
-            </span>
-            <span className="text-white/50 text-sm ml-1">Pro</span>
-          </div>
-        </div>
+        <Link to="/" className="flex items-center group">
+          <Logo size={40} variant="horizontal" className="group-hover:opacity-95" />
+        </Link>
 
         {/* Mobile Menu Toggle Button */}
         <button

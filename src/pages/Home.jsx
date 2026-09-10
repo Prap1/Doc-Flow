@@ -24,7 +24,7 @@ import {
   AlignCenter,
   AlignRight,
 } from "lucide-react";
-import Logo from "../assets/Logo";
+import Logo from "../components/Logo";
 import { showToast } from "../components/Toast";
 
 const modules = [
@@ -134,14 +134,21 @@ export default function Home() {
         <div className="absolute -top-10 right-[20%] w-64 h-64 rounded-full pointer-events-none bg-[radial-gradient(circle,rgba(0,217,255,0.1)_0%,transparent_70%)]" />
 
         <motion.div
-          animate={{ rotate: [0, 5, -5, 0] }}
-          transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
-          className="inline-block mb-5"
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="relative inline-flex items-center justify-center mb-6"
         >
-          <Logo size={72} />
+          {/* Subtle brand glow behind icon */}
+          <div className="absolute -inset-2 bg-gradient-to-r from-emerald-500/30 via-cyan-500/25 to-indigo-500/30 rounded-3xl blur-xl opacity-80" />
+          
+          {/* Frosted glass container with crisp white badge */}
+          <div className="relative p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl">
+            <Logo size={96} variant="badge" className="rounded-xl shadow-lg" />
+          </div>
         </motion.div>
         <h1 className="font-outfit font-black leading-tight mb-4 text-[clamp(36px,5vw,64px)]">
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-400">
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-cyan-300 to-indigo-400">
             ApniPDFs
           </span>
           <br />
