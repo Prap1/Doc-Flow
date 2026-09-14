@@ -5,6 +5,7 @@ import { saveAs } from "file-saver";
 import FileDropzone from "../components/FileDropzone";
 import PdfCanvasEditor from "../components/PdfCanvasEditor";
 import FilePreviewModal from "../components/FilePreviewModal";
+import AdBanner from "../components/AdBanner";
 import { showToast } from "../components/Toast";
 import {
   Trash2,
@@ -766,6 +767,7 @@ export default function PdfTools() {
             )}
           </motion.div>
         )}
+        <AdBanner className="mt-8" />
       </motion.div>
       <FilePreviewModal
         previewFile={previewFile}
