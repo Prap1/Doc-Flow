@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://www.apnipdfs.com/sitemap.xml
+Sitemap: https://apnipdfs.com/sitemap.xml
