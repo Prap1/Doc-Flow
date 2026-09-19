@@ -38,14 +38,14 @@ const TOOLS = [
     icon: "✂️",
     color: "#FF6B9D",
   },
-  {
-    id: 3,
-    action: "convert",
-    title: "Convert Doc",
-    desc: "To PDF or HTML",
-    icon: "🔄",
-    color: "#00FFB3",
-  },
+  // {
+  //   id: 3,
+  //   action: "convert",
+  //   title: "Convert Doc",
+  //   desc: "To PDF or HTML",
+  //   icon: "🔄",
+  //   color: "#00FFB3",
+  // },
 ];
 
 function formatBytes(b) {
@@ -473,74 +473,8 @@ export default function WordTools() {
               </div>
             )}
 
-            {/* Convert */}
-            {activeTool === 3 && (
-              <div className="tool-content">
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(2, 1fr)",
-                    gap: 16,
-                  }}
-                >
-                  {[
-                    {
-                      label: "Word → Google Docs",
-                      emoji: "📃",
-                      color: "#00FFB3",
-                    },
-                    { label: "Word → PDF", emoji: "📄", color: "#FF6B9D" },
-                  ].map((opt, i) => (
-                    <motion.div
-                      key={i}
-                      whileHover={{ y: -3 }}
-                      className="card"
-                      style={{
-                        padding: 24,
-                        background: "white",
-                        borderColor: `${opt.color}40`,
-                        boxShadow: `0 8px 32px ${opt.color}15`,
-                      }}
-                    >
-                      <div style={{ fontSize: 36, marginBottom: 12 }}>
-                        {opt.emoji}
-                      </div>
-                      <h3
-                        style={{
-                          fontWeight: 700,
-                          marginBottom: 8,
-                          color: opt.color,
-                        }}
-                      >
-                        {opt.label}
-                      </h3>
-                      <FileDropzone
-                        onFiles={(f) => {
-                          showToast(`Converting ${f[0].name}…`, "info");
-                          setTimeout(
-                            () =>
-                              showToast(
-                                "Conversion complete! (Demo)",
-                                "success",
-                              ),
-                            1500,
-                          );
-                        }}
-                        accept={{
-                          "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-                            [".docx"],
-                        }}
-                        multiple={false}
-                        label="Drop .docx"
-                        sublabel=""
-                        icon="📝"
-                        color={opt.color}
-                      />
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-            )}
+            {/* Convert - commented out until Word to PDF conversion backend is ready */}
+            {/* activeTool === 3 && ( ... ) */}
           </motion.div>
         )}
         <WordContentSection />
