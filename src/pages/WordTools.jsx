@@ -6,6 +6,8 @@ import mammoth from "mammoth";
 import FileDropzone from "../components/FileDropzone";
 import RichEditor from "../components/RichEditor";
 import FilePreviewModal from "../components/FilePreviewModal";
+import AdBanner from "../components/AdBanner";
+import WordContentSection from "../components/WordContentSection";
 import { showToast } from "../components/Toast";
 import { Trash2, Download, RefreshCw, Merge, Scissors } from "lucide-react";
 
@@ -541,6 +543,8 @@ export default function WordTools() {
             )}
           </motion.div>
         )}
+        <WordContentSection />
+        <AdBanner className="mt-8" />
       </motion.div>
       <FilePreviewModal
         previewFile={previewFile}

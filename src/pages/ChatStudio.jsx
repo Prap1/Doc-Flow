@@ -18,6 +18,8 @@ import { uploadWhatsAppChat } from "../api";
 
 import RichEditor from "../components/RichEditor";
 import VoiceRecorder from "../components/VoiceRecorder";
+import AdBanner from "../components/AdBanner";
+import ChatContentSection from "../components/ChatContentSection";
 import { showToast } from "../components/Toast";
 import { createPost, uploadVoice, listPosts, deletePost } from "../api";
 import {
@@ -1717,6 +1719,8 @@ export default function ChatStudio() {
             )}
           </motion.div>
         )}
+        <ChatContentSection />
+        <AdBanner className="mt-8" />
       </motion.div>
     </div>
   );

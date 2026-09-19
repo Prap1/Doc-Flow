@@ -19,6 +19,7 @@ import Contact from "./pages/Contact";
 import Faqs from "./pages/Faqs";
 import HowItWorks from "./pages/HowItWorks";
 import Sitemap from "./pages/Sitemap";
+import NotFound from "./pages/NotFound";
 
 function AppRoutes() {
   const location = useLocation();
@@ -40,6 +41,7 @@ function AppRoutes() {
         <Route path="/faqs" element={<Faqs />} />
         <Route path="/how-it-works" element={<HowItWorks />} />
         <Route path="/sitemap" element={<Sitemap />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
   );

@@ -6,43 +6,47 @@ export default function AdBanner({
   format = "auto",
   responsive = "true",
   className = "",
-  style = { display: "block" },
+  style = { display: "block", minHeight: "100px" },
 }) {
   const adRef = useRef(null);
 
   useEffect(() => {
     try {
       if (typeof window !== "undefined") {
-        // Push only if adsbygoogle hasn't already initialized this ad element
+        // Only push if the ins element is mounted and not yet initialized by AdSense
         if (
           adRef.current &&
-          !adRef.current.getAttribute("data-adsbygoogle-status")
+          !adRef.current.getAttribute("data-adsbygoogle-status") &&
+          !adRef.current.hasChildNodes()
         ) {
           (window.adsbygoogle = window.adsbygoogle || []).push({});
         }
       }
     } catch (e) {
-      console.warn("AdSense initialization:", e);
+      // Gracefully ignore AdSense errors if blocked or dev mode
+      console.debug("AdSense status:", e);
     }
   }, []);
 
   return (
     <div
-      className={`ad-container my-6 w-full overflow-hidden text-center rounded-xl bg-white/[0.02] border border-white/5 p-2 ${className}`}
+      className={`ad-container my-8 w-full max-w-5xl mx-auto overflow-hidden text-center rounded-2xl bg-white/[0.02] border border-white/5 p-3 sm:p-4 backdrop-blur-sm transition-all ${className}`}
+      aria-label="Advertisement"
     >
-      <div className="text-[10px] uppercase tracking-wider text-white/30 mb-1">
+      <div className="text-[10px] uppercase tracking-widest font-medium text-white/30 mb-2 select-none">
         Advertisement
       </div>
-      {/* PDF Tools Display */}
-      <ins
-        ref={adRef}
-        className="adsbygoogle"
-        style={style}
-        data-ad-client={client}
-        data-ad-slot={slot}
-        data-ad-format={format}
-        data-full-width-responsive={responsive}
-      />
+      <div className="min-h-[100px] flex items-center justify-center">
+        <ins
+          ref={adRef}
+          className="adsbygoogle"
+          style={style}
+          data-ad-client={client}
+          data-ad-slot={slot}
+          data-ad-format={format}
+          data-full-width-responsive={responsive}
+        />
+      </div>
     </div>
   );
 }

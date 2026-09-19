@@ -25,6 +25,7 @@ import {
   AlignRight,
 } from "lucide-react";
 import Logo from "../components/Logo";
+import HomeEditorialSection from "../components/HomeEditorialSection";
 import { showToast } from "../components/Toast";
 
 const modules = [
@@ -573,6 +574,9 @@ export default function Home() {
           </Link>
         </div>
       </motion.div>
+
+      {/* Comprehensive Editorial & Guide Content */}
+      <HomeEditorialSection />
 
       {/* Meaning Popup */}
       {showMeaningPopup && (

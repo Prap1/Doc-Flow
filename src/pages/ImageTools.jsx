@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { saveAs } from "file-saver";
 import FileDropzone from "../components/FileDropzone";
 import FilePreviewModal from "../components/FilePreviewModal";
+import AdBanner from "../components/AdBanner";
+import ImageContentSection from "../components/ImageContentSection";
 import { showToast } from "../components/Toast";
 import {
   Download,
@@ -699,6 +701,8 @@ export default function ImageTools() {
             )}
           </motion.div>
         )}
+        <ImageContentSection />
+        <AdBanner className="mt-8" />
       </motion.div>
       <FilePreviewModal
         previewFile={previewFile}

@@ -5,6 +5,8 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import FileDropzone from "../components/FileDropzone";
 import FilePreviewModal from "../components/FilePreviewModal";
+import AdBanner from "../components/AdBanner";
+import ExcelContentSection from "../components/ExcelContentSection";
 import { showToast } from "../components/Toast";
 import {
   Download,
@@ -566,6 +568,8 @@ export default function ExcelTools() {
             )}
           </motion.div>
         )}
+        <ExcelContentSection />
+        <AdBanner className="mt-8" />
       </motion.div>
       <FilePreviewModal
         previewFile={previewFile}
