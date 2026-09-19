@@ -142,10 +142,10 @@ export default function TermsConditions() {
                 If you have any questions or require legal clarification regarding these Terms of Service, please contact our administrative team:
               </p>
               <a
-                href="mailto:info@apnipdfs.com"
+                href="mailto:barotmanav68@gmail.com"
                 className="text-indigo-400 font-medium hover:underline inline-flex items-center gap-1.5"
               >
-                <Mail size={16} /> info@apnipdfs.com
+                <Mail size={16} /> barotmanav68@gmail.com
               </a>
             </section>
           </div>

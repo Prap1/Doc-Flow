@@ -58,11 +58,11 @@ export default function Contact() {
               <div className="space-y-3 pt-3 border-t border-white/5 text-sm text-white/70">
                 <div className="flex items-center gap-3">
                   <Mail size={16} className="text-indigo-400" />
-                  <span>General Support: <strong>info@apnipdfs.com</strong></span>
+                  <span>General Support: <strong>barotmanav68@gmail.com</strong></span>
                 </div>
                 <div className="flex items-center gap-3">
                   <ShieldCheck size={16} className="text-emerald-400" />
-                  <span>Privacy Inquiries: <strong>privacy@apnipdfs.com</strong></span>
+                  <span>Privacy Inquiries: <strong>barotmanav68@gmail.com</strong></span>
                 </div>
               </div>
             </div>

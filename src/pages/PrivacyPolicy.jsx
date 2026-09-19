@@ -174,10 +174,10 @@ export default function PrivacyPolicy() {
                   <div className="text-white/60 text-sm">Official Correspondence & Inquiries</div>
                 </div>
                 <a
-                  href="mailto:info@apnipdfs.com"
+                  href="mailto:barotmanav68@gmail.com"
                   className="btn btn-primary inline-flex items-center gap-2 text-sm"
                 >
-                  <Mail size={15} /> info@apnipdfs.com
+                  <Mail size={15} /> barotmanav68@gmail.com
                 </a>
               </div>
             </section>
