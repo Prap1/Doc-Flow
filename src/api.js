@@ -3,9 +3,9 @@
  * All requests go through Vite proxy → FastAPI at /api/*
  */
 
-const BASE =
-  import.meta.env.VITE_API_BASE_URL ||
-  "https://doc-flow-backend-master-production.up.railway.app/api";
+import { API_BASE_URL } from "./apiConfig";
+
+const BASE = API_BASE_URL;
 
 // ── Generic helpers ──────────────────────────────────────────
 

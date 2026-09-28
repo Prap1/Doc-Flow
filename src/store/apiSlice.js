@@ -1,11 +1,10 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { API_BASE_URL } from "../apiConfig";
 
 export const apiSlice = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
-    baseUrl:
-      import.meta.env.VITE_API_BASE_URL ||
-      "https://doc-flow-backend-master-production.up.railway.app/api",
+    baseUrl: API_BASE_URL,
   }),
   endpoints: (builder) => ({
     // Health

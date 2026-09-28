@@ -2,31 +2,31 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- Core Pages -->
   <url>
-    <loc>https://apnipdfs.com/</loc>
+    <loc>https://www.apnipdfs.com/</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://apnipdfs.com/how-it-works</loc>
+    <loc>https://www.apnipdfs.com/how-it-works</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://apnipdfs.com/faqs</loc>
+    <loc>https://www.apnipdfs.com/faqs</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://apnipdfs.com/contact</loc>
+    <loc>https://www.apnipdfs.com/contact</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://apnipdfs.com/sitemap</loc>
+    <loc>https://www.apnipdfs.com/sitemap</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
@@ -34,31 +34,31 @@
 
   <!-- PDF Studio -->
   <url>
-    <loc>https://apnipdfs.com/pdf</loc>
+    <loc>https://www.apnipdfs.com/pdf</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://apnipdfs.com/pdf/edit</loc>
+    <loc>https://www.apnipdfs.com/pdf/edit</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://apnipdfs.com/pdf/merge</loc>
+    <loc>https://www.apnipdfs.com/pdf/merge</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://apnipdfs.com/pdf/split</loc>
+    <loc>https://www.apnipdfs.com/pdf/split</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://apnipdfs.com/pdf/convert</loc>
+    <loc>https://www.apnipdfs.com/pdf/convert</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -66,31 +66,31 @@
 
   <!-- Word Studio -->
   <url>
-    <loc>https://apnipdfs.com/word</loc>
+    <loc>https://www.apnipdfs.com/word</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://apnipdfs.com/word/edit</loc>
+    <loc>https://www.apnipdfs.com/word/edit</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://apnipdfs.com/word/merge</loc>
+    <loc>https://www.apnipdfs.com/word/merge</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://apnipdfs.com/word/split</loc>
+    <loc>https://www.apnipdfs.com/word/split</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://apnipdfs.com/word/convert</loc>
+    <loc>https://www.apnipdfs.com/word/convert</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -98,25 +98,25 @@
 
   <!-- Excel Studio -->
   <url>
-    <loc>https://apnipdfs.com/excel</loc>
+    <loc>https://www.apnipdfs.com/excel</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://apnipdfs.com/excel/edit</loc>
+    <loc>https://www.apnipdfs.com/excel/edit</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://apnipdfs.com/excel/merge</loc>
+    <loc>https://www.apnipdfs.com/excel/merge</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://apnipdfs.com/excel/split</loc>
+    <loc>https://www.apnipdfs.com/excel/split</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -124,25 +124,25 @@
 
   <!-- Image Studio -->
   <url>
-    <loc>https://apnipdfs.com/image</loc>
+    <loc>https://www.apnipdfs.com/image</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://apnipdfs.com/image/edit</loc>
+    <loc>https://www.apnipdfs.com/image/edit</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://apnipdfs.com/image/merge</loc>
+    <loc>https://www.apnipdfs.com/image/merge</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://apnipdfs.com/image/split</loc>
+    <loc>https://www.apnipdfs.com/image/split</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -150,13 +150,13 @@
 
   <!-- Social Studio -->
   <url>
-    <loc>https://apnipdfs.com/chat</loc>
+    <loc>https://www.apnipdfs.com/chat</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://apnipdfs.com/whatsapp</loc>
+    <loc>https://www.apnipdfs.com/whatsapp</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -164,13 +164,13 @@
 
   <!-- Legal -->
   <url>
-    <loc>https://apnipdfs.com/privacy</loc>
+    <loc>https://www.apnipdfs.com/privacy</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://apnipdfs.com/terms</loc>
+    <loc>https://www.apnipdfs.com/terms</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
