@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import Logo from "../components/Logo";
 import HomeEditorialSection from "../components/HomeEditorialSection";
+import SEO from "../components/SEO";
 import { showToast } from "../components/Toast";
 
 const modules = [
@@ -123,6 +124,12 @@ export default function Home() {
 
   return (
     <div className="page-body" style={{ paddingTop: 80 }}>
+      <SEO
+        title="ApniPDFs — Free Online PDF, Word, Excel & Image Document Suite"
+        description="Edit, merge, split, and convert PDFs, Word documents (.docx), Excel spreadsheets (.xlsx), and images directly in your browser with complete privacy. 100% free with no watermarks."
+        keywords="PDF editor, merge PDF, split PDF, convert PDF to Word, edit docx online, split excel sheets, edit image online, free document tools, ApniPDFs"
+        canonical="https://www.apnipdfs.com/"
+      />
       {/* Hero */}
       <motion.div
         initial={{ opacity: 0, y: 32 }}

@@ -8,6 +8,7 @@ import RichEditor from "../components/RichEditor";
 import FilePreviewModal from "../components/FilePreviewModal";
 import AdBanner from "../components/AdBanner";
 import WordContentSection from "../components/WordContentSection";
+import SEO from "../components/SEO";
 import { showToast } from "../components/Toast";
 import { Trash2, Download, RefreshCw, Merge, Scissors } from "lucide-react";
 
@@ -142,8 +143,50 @@ export default function WordTools() {
     }
   };
 
+  const getSeoData = () => {
+    switch (action) {
+      case "merge":
+        return {
+          title: "Merge Word Documents Online Free (.docx) | ApniPDFs",
+          description: "Combine multiple Microsoft Word (.docx) files into one consolidated document online without MS Office.",
+          keywords: "merge word documents, combine docx online, join word files, free docx merger",
+          canonical: "https://www.apnipdfs.com/word/merge",
+        };
+      case "split":
+        return {
+          title: "Split Word Document Online Free (.docx) | ApniPDFs",
+          description: "Split and separate Microsoft Word (.docx) documents into individual sections or files in your browser.",
+          keywords: "split word document, extract docx pages, separate word file online, free word splitter",
+          canonical: "https://www.apnipdfs.com/word/split",
+        };
+      case "convert":
+        return {
+          title: "Convert Word Documents Online Free | ApniPDFs",
+          description: "Convert Microsoft Word (.docx) files to PDF or HTML with fonts, layouts, and tables preserved.",
+          keywords: "convert word to pdf, docx to html, convert docx online, free word converter",
+          canonical: "https://www.apnipdfs.com/word/convert",
+        };
+      case "edit":
+        return {
+          title: "Edit Word Document Online Free (.docx) | ApniPDFs",
+          description: "Open and edit Microsoft Word (.docx) files online in your browser without installing Microsoft Office.",
+          keywords: "edit word document online, free docx editor, edit docx in browser, online word processor",
+          canonical: "https://www.apnipdfs.com/word/edit",
+        };
+      default:
+        return {
+          title: "Free Word Document Studio — Edit, Merge & Convert DOCX | ApniPDFs",
+          description: "Complete online Microsoft Word (.docx) utility. Open, edit, merge, split, and convert documents directly in your browser.",
+          keywords: "word tools, docx editor, merge word online, split docx, free word tools",
+          canonical: "https://www.apnipdfs.com/word",
+        };
+    }
+  };
+  const seo = getSeoData();
+
   return (
     <div className="page-body">
+      <SEO {...seo} />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

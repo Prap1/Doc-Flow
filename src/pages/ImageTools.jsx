@@ -6,6 +6,7 @@ import FileDropzone from "../components/FileDropzone";
 import FilePreviewModal from "../components/FilePreviewModal";
 import AdBanner from "../components/AdBanner";
 import ImageContentSection from "../components/ImageContentSection";
+import SEO from "../components/SEO";
 import { showToast } from "../components/Toast";
 import {
   Download,
@@ -266,8 +267,43 @@ export default function ImageTools() {
     },
   ];
 
+  const getSeoData = () => {
+    switch (action) {
+      case "merge":
+        return {
+          title: "Merge Images Online Free — Combine Photos Horizontally or Vertically | ApniPDFs",
+          description: "Stitch multiple images into one combined photo horizontally or vertically in your browser with zero loss in resolution.",
+          keywords: "merge images online, combine photos, join images, stitch photos, free image merger",
+          canonical: "https://www.apnipdfs.com/image/merge",
+        };
+      case "split":
+        return {
+          title: "Split Image Online Free — Grid & Carousel Splitter | ApniPDFs",
+          description: "Cut and split images into grids or sequential panels for social media carousels and posts directly in your browser.",
+          keywords: "split image online, carousel splitter, grid image cut, divide photo online",
+          canonical: "https://www.apnipdfs.com/image/split",
+        };
+      case "edit":
+        return {
+          title: "Edit Image Online Free — Filters, Rotation & Adjustments | ApniPDFs",
+          description: "Online photo editor with hardware-accelerated filters, brightness, contrast adjustments, rotation, and cropping.",
+          keywords: "edit image online, free photo editor, browser image filters, rotate photo online",
+          canonical: "https://www.apnipdfs.com/image/edit",
+        };
+      default:
+        return {
+          title: "Free Digital Image Studio — Edit, Merge & Split Photos | ApniPDFs",
+          description: "Browser-based photo editing suite. Apply hardware-accelerated filters, join multiple photos, and split carousel images effortlessly.",
+          keywords: "image tools, free image editor, photo merger, image splitter, browser photo tools",
+          canonical: "https://www.apnipdfs.com/image",
+        };
+    }
+  };
+  const seo = getSeoData();
+
   return (
     <div className="page-body">
+      <SEO {...seo} />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

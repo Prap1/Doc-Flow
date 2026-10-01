@@ -17,7 +17,8 @@ import {
   Wrench,
   Share2,
   Menu,
-  X
+  X,
+  Info,
 } from "lucide-react";
 import Logo from "./Logo";
 
@@ -190,10 +191,26 @@ export default function Header() {
             border="border-pink-500/40"
             badge="PDF"
           />
+          <NavItem
+            path="/guides"
+            icon={<BookOpen size={16} />}
+            label="Guides"
+            color="text-emerald-400"
+            activeBg="bg-emerald-500/20"
+            border="border-emerald-500/40"
+          />
           <DropdownNav
             icon={<Share2 size={16} />}
             label="Social Studio"
             items={socialDropdown}
+          />
+          <NavItem
+            path="/about"
+            icon={<Info size={16} />}
+            label="About"
+            color="text-cyan-400"
+            activeBg="bg-cyan-500/20"
+            border="border-cyan-500/40"
           />
         </nav>
       </div>
@@ -253,11 +270,29 @@ export default function Header() {
                 badge="PDF"
                 onClick={closeMobileMenu}
               />
+              <NavItem
+                path="/guides"
+                icon={<BookOpen size={16} />}
+                label="Guides & Tutorials"
+                color="text-emerald-400"
+                activeBg="bg-emerald-500/20"
+                border="border-emerald-500/40"
+                onClick={closeMobileMenu}
+              />
               <DropdownNav
                 icon={<Share2 size={16} />}
                 label="Social Studio"
                 items={socialDropdown}
                 onItemClick={closeMobileMenu}
+              />
+              <NavItem
+                path="/about"
+                icon={<Info size={16} />}
+                label="About Us"
+                color="text-cyan-400"
+                activeBg="bg-cyan-500/20"
+                border="border-cyan-500/40"
+                onClick={closeMobileMenu}
               />
             </nav>
           </motion.div>

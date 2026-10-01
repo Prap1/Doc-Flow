@@ -21,6 +21,10 @@ import HowItWorks from "./pages/HowItWorks";
 import Sitemap from "./pages/Sitemap";
 import NotFound from "./pages/NotFound";
 
+import AboutUs from "./pages/AboutUs";
+import Guides from "./pages/Guides";
+import GuideDetail from "./pages/GuideDetail";
+
 function AppRoutes() {
   const location = useLocation();
   return (
@@ -35,6 +39,9 @@ function AppRoutes() {
         <Route path="/chat" element={<ChatStudio />} />
         <Route path="/whatsapp" element={<WhatsAppStudio />} />
         <Route path="/share/:id" element={<SharePost />} />
+        <Route path="/guides" element={<Guides />} />
+        <Route path="/guides/:slug" element={<GuideDetail />} />
+        <Route path="/about" element={<AboutUs />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsConditions />} />
         <Route path="/contact" element={<Contact />} />

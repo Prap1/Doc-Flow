@@ -63,7 +63,72 @@
     </script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Semantic Crawler & Pre-render Fallback -->
+      <header style="padding: 24px; text-align: center; background-color: #07071A; color: #ffffff; font-family: system-ui, -apple-system, sans-serif;">
+        <nav style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px;">
+          <a href="/" style="color: #818cf8; text-decoration: none; font-weight: bold;">Home</a>
+          <a href="/pdf" style="color: #f472b6; text-decoration: none;">PDF Studio</a>
+          <a href="/word" style="color: #38bdf8; text-decoration: none;">Word Studio</a>
+          <a href="/excel" style="color: #fb923c; text-decoration: none;">Excel Studio</a>
+          <a href="/image" style="color: #c084fc; text-decoration: none;">Image Studio</a>
+          <a href="/guides" style="color: #34d399; text-decoration: none;">Guides & Tutorials</a>
+          <a href="/about" style="color: #38bdf8; text-decoration: none;">About Us</a>
+          <a href="/contact" style="color: #cbd5e1; text-decoration: none;">Contact</a>
+        </nav>
+        <h1 style="font-size: 2.2rem; margin-bottom: 12px; font-weight: 800;">ApniPDFs — Free Online PDF, Word, Excel & Image Document Suite</h1>
+        <p style="font-size: 1.1rem; color: #94a3b8; max-width: 800px; margin: 0 auto 24px;">
+          ApniPDFs is an all-in-one private document utility. Edit, merge, split, and convert PDFs, Word documents (.docx), Excel spreadsheets (.xlsx), and images directly in your browser tab with complete client-side security, zero watermarks, and no sign-up requirements.
+        </p>
+      </header>
+
+      <main style="max-width: 900px; margin: 0 auto; padding: 24px; font-family: system-ui, -apple-system, sans-serif; color: #e2e8f0; line-height: 1.6;">
+        <section style="margin-bottom: 32px;">
+          <h2 style="font-size: 1.5rem; color: #f8fafc; border-bottom: 1px solid #334155; padding-bottom: 8px;">Comprehensive Document Ecosystem</h2>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 16px;">
+            <div style="background: #0f172a; padding: 16px; border-radius: 8px; border: 1px solid #1e293b;">
+              <h3 style="color: #f472b6; margin-top: 0;">PDF Management Studio</h3>
+              <p style="font-size: 0.9rem; color: #94a3b8;">Lossless multi-page PDF merging, custom range splitting, interactive annotations, and high-fidelity PDF to Microsoft Word (.docx) conversion.</p>
+            </div>
+            <div style="background: #0f172a; padding: 16px; border-radius: 8px; border: 1px solid #1e293b;">
+              <h3 style="color: #38bdf8; margin-top: 0;">Word Document Studio</h3>
+              <p style="font-size: 0.9rem; color: #94a3b8;">Open, edit, concatenate, and export DOCX files directly in your browser without requiring Microsoft 365 or desktop software installations.</p>
+            </div>
+            <div style="background: #0f172a; padding: 16px; border-radius: 8px; border: 1px solid #1e293b;">
+              <h3 style="color: #fb923c; margin-top: 0;">Spreadsheet & Excel Studio</h3>
+              <p style="font-size: 0.9rem; color: #94a3b8;">Split multi-tab workbooks into standalone files, convert CSV datasets into styled XLSX spreadsheets, and preview tabular data securely.</p>
+            </div>
+            <div style="background: #0f172a; padding: 16px; border-radius: 8px; border: 1px solid #1e293b;">
+              <h3 style="color: #c084fc; margin-top: 0;">Digital Image Studio</h3>
+              <p style="font-size: 0.9rem; color: #94a3b8;">Hardware-accelerated image adjustments, brightness and contrast tuning, multi-image merging, and lossless canvas compression.</p>
+            </div>
+          </div>
+        </section>
+
+        <section style="margin-bottom: 32px;">
+          <h2 style="font-size: 1.5rem; color: #f8fafc; border-bottom: 1px solid #334155; padding-bottom: 8px;">100% Client-Side Privacy Architecture</h2>
+          <p>
+            ApniPDFs is engineered from the ground up for strict data confidentiality. Utilizing modern HTML5 File APIs and WebAssembly binaries, all computational document transformations occur locally in your browser memory (RAM). Your legal agreements, invoices, resumes, and medical records are never uploaded to remote servers or third-party cloud buckets.
+          </p>
+        </section>
+
+        <section style="margin-bottom: 32px;">
+          <h2 style="font-size: 1.5rem; color: #f8fafc; border-bottom: 1px solid #334155; padding-bottom: 8px;">Educational Guides & Document Best Practices</h2>
+          <p>Explore our in-depth research articles and tutorials:</p>
+          <ul style="padding-left: 20px; color: #818cf8;">
+            <li><a href="/guides/how-to-merge-pdf-files-online-without-losing-formatting" style="color: #818cf8;">How to Merge Multiple PDF Files Securely in Your Browser</a></li>
+            <li><a href="/guides/convert-pdf-to-word-docx-formatting-guide" style="color: #818cf8;">The Complete Guide to Converting PDF to Word (.docx) with Exact Formatting</a></li>
+            <li><a href="/guides/client-side-browser-document-privacy-webassembly" style="color: #818cf8;">How In-Browser WebAssembly Protects Document Privacy: The Security Architecture</a></li>
+            <li><a href="/guides/split-manage-excel-workbooks-csv" style="color: #818cf8;">How to Split Multi-Sheet Excel Workbooks into Separate Files & Convert CSVs</a></li>
+            <li><a href="/guides/optimize-compress-images-without-losing-quality" style="color: #818cf8;">Image Optimization Guide: Compressing PNG, JPEG & WebP Without Visual Loss</a></li>
+          </ul>
+        </section>
+      </main>
+
+      <footer style="padding: 24px; text-align: center; border-top: 1px solid #1e293b; color: #64748b; font-family: system-ui, -apple-system, sans-serif; font-size: 0.85rem;">
+        <p>&copy; 2026 ApniPDFs. All rights reserved. | <a href="/about" style="color: #94a3b8;">About Us</a> | <a href="/privacy" style="color: #94a3b8;">Privacy Policy</a> | <a href="/terms" style="color: #94a3b8;">Terms of Service</a> | <a href="/contact" style="color: #94a3b8;">Contact</a> | <a href="/sitemap" style="color: #94a3b8;">Sitemap</a></p>
+      </footer>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

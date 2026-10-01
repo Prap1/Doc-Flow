@@ -7,6 +7,7 @@ import FileDropzone from "../components/FileDropzone";
 import FilePreviewModal from "../components/FilePreviewModal";
 import AdBanner from "../components/AdBanner";
 import ExcelContentSection from "../components/ExcelContentSection";
+import SEO from "../components/SEO";
 import { showToast } from "../components/Toast";
 import {
   Download,
@@ -173,8 +174,36 @@ export default function ExcelTools() {
     }
   };
 
+  const getSeoData = () => {
+    switch (action) {
+      case "merge":
+        return {
+          title: "Merge Excel Spreadsheets Online Free (.xlsx) | ApniPDFs",
+          description: "Combine multiple Excel workbooks and sheets into one single spreadsheet file online with formatting intact.",
+          keywords: "merge excel files, combine xlsx sheets, join spreadsheets online, free excel merger",
+          canonical: "https://www.apnipdfs.com/excel/merge",
+        };
+      case "split":
+        return {
+          title: "Split Excel Sheets Online Free (.xlsx / .csv) | ApniPDFs",
+          description: "Extract individual sheets or tabs from multi-sheet Excel workbooks into standalone files in seconds.",
+          keywords: "split excel sheets, extract xlsx tabs, separate excel workbook, free excel splitter",
+          canonical: "https://www.apnipdfs.com/excel/split",
+        };
+      default:
+        return {
+          title: "Free Excel Studio — Split, Merge & Convert Workbooks | ApniPDFs",
+          description: "All-in-one free browser spreadsheet tool. Inspect tabular data, split multi-sheet workbooks, and merge Excel files securely.",
+          keywords: "excel tools, xlsx editor, split excel sheets, merge excel online, free spreadsheet tools",
+          canonical: "https://www.apnipdfs.com/excel",
+        };
+    }
+  };
+  const seo = getSeoData();
+
   return (
     <div className="page-body">
+      <SEO {...seo} />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

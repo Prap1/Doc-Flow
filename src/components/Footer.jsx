@@ -13,13 +13,19 @@ export default function Footer() {
           </Link>
           <p className="text-white/40 text-sm flex items-center gap-1.5">
             Crafted with{" "}
-            <Heart size={14} className="text-pink-500 fill-pink-500/20" /> by
-            your team
+            <Heart size={14} className="text-pink-500 fill-pink-500/20" /> for
+            privacy & productivity
           </p>
         </div>
 
         {/* Center: Quick Links */}
         <nav className="flex items-center gap-6 text-sm text-white/50 font-medium flex-wrap justify-center">
+          <Link to="/about" className="hover:text-indigo-400 transition-colors">
+            About Us
+          </Link>
+          <Link to="/guides" className="hover:text-indigo-400 transition-colors">
+            Guides & Tutorials
+          </Link>
           <Link to="/how-it-works" className="hover:text-indigo-400 transition-colors">
             How It Works
           </Link>
@@ -43,26 +49,29 @@ export default function Footer() {
           </Link>
         </nav>
 
-        {/* Right Side: Socials */}
+        {/* Right Side: Contact & Socials */}
         <div className="flex items-center gap-4 text-white/40">
-          <a
-            href="#"
+          <Link
+            to="/about"
+            title="About ApniPDFs"
             className="hover:text-white transition-colors hover:scale-110"
           >
             <Globe size={18} />
-          </a>
+          </Link>
           <a
-            href="#"
+            href="mailto:support@apnipdfs.com"
+            title="Contact Support"
             className="hover:text-blue-400 transition-colors hover:scale-110"
           >
             <Mail size={18} />
           </a>
-          <a
-            href="#"
-            className="hover:text-blue-600 transition-colors hover:scale-110"
+          <Link
+            to="/contact"
+            title="Send Message"
+            className="hover:text-indigo-400 transition-colors hover:scale-110"
           >
             <MessageCircle size={18} />
-          </a>
+          </Link>
         </div>
       </div>
       <div className="max-w-6xl mx-auto mt-8 pt-6 border-t border-white/5 text-center text-white/30 text-sm">

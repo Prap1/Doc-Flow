@@ -7,6 +7,7 @@ import PdfCanvasEditor from "../components/PdfCanvasEditor";
 import FilePreviewModal from "../components/FilePreviewModal";
 import AdBanner from "../components/AdBanner";
 import PdfContentSection from "../components/PdfContentSection";
+import SEO from "../components/SEO";
 import { showToast } from "../components/Toast";
 import {
   Trash2,
@@ -264,8 +265,50 @@ export default function PdfTools() {
     </div>
   );
 
+  const getSeoData = () => {
+    switch (action) {
+      case "merge":
+        return {
+          title: "Merge PDF Online Free — Combine Multiple PDF Files | ApniPDFs",
+          description: "Combine multiple PDF documents into one cohesive file in seconds directly in your browser. 100% private, client-side, zero watermarks.",
+          keywords: "merge pdf online, combine pdf, join pdf files, free pdf merger, pdf stitcher",
+          canonical: "https://www.apnipdfs.com/pdf/merge",
+        };
+      case "split":
+        return {
+          title: "Split PDF Online Free — Extract Pages from PDF Documents | ApniPDFs",
+          description: "Extract specific pages or page ranges from any PDF document without quality loss. Fast, browser-based, zero software installation.",
+          keywords: "split pdf, extract pdf pages, separate pdf, cut pdf pages online, free pdf splitter",
+          canonical: "https://www.apnipdfs.com/pdf/split",
+        };
+      case "convert":
+        return {
+          title: "Convert PDF to Word (.docx) & HTML Online Free | ApniPDFs",
+          description: "Convert PDF files into fully editable Microsoft Word (.docx) documents with vector text, fonts, and table formatting preserved.",
+          keywords: "convert pdf to word, pdf to docx, pdf converter online, free pdf to word converter",
+          canonical: "https://www.apnipdfs.com/pdf/convert",
+        };
+      case "edit":
+        return {
+          title: "Edit PDF Online Free — Annotate & Modify PDFs in Browser | ApniPDFs",
+          description: "Free online PDF editor. Annotate, sign, highlight, add text, and modify PDF documents directly in your browser tab.",
+          keywords: "edit pdf online, free pdf editor, annotate pdf, modify pdf browser, pdf sign",
+          canonical: "https://www.apnipdfs.com/pdf/edit",
+        };
+      default:
+        return {
+          title: "Free PDF Suite — Edit, Merge, Split & Convert PDFs Online | ApniPDFs",
+          description: "All-in-one free PDF utility suite. Edit, merge, split, and convert PDF documents in your browser with complete client-side security.",
+          keywords: "pdf tools, free pdf tools, merge pdf, split pdf, edit pdf, pdf to word",
+          canonical: "https://www.apnipdfs.com/pdf",
+        };
+    }
+  };
+  const seo = getSeoData();
+
   return (
     <div className="page-body">
+      <SEO {...seo} />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
