@@ -28,6 +28,10 @@ export default function AdBanner({
     }
   }, []);
 
+  // Commented out for now until Google AdSense approval to prevent empty/blank ad containers
+  return null;
+
+  /*
   return (
     <div
       className={`ad-container my-8 w-full max-w-5xl mx-auto overflow-hidden text-center rounded-2xl bg-white/[0.02] border border-white/5 p-3 sm:p-4 backdrop-blur-sm transition-all ${className}`}
@@ -49,4 +53,5 @@ export default function AdBanner({
       </div>
     </div>
   );
+  */
 }

@@ -12,8 +12,8 @@ export default function Logo({
     return (
       <div className={`flex items-center gap-3 ${className}`} {...props}>
         <div
-          className="rounded-xl bg-white p-1.5 shadow-md shadow-emerald-500/15 border border-white/20 flex items-center justify-center shrink-0 transition-transform duration-200"
-          style={{ width: size, height: size }}
+          className="rounded-xl bg-white p-1 shadow-sm border border-white/20 flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105"
+          style={{ width: 34, height: 34 }}
         >
           <img
             src={logoIcon}

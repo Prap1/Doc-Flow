@@ -11,7 +11,6 @@ import WordTools from "./pages/WordTools";
 import ExcelTools from "./pages/ExcelTools";
 import ImageTools from "./pages/ImageTools";
 import ChatStudio from "./pages/ChatStudio";
-import WhatsAppStudio from "./pages/WhatsAppStudio";
 import SharePost from "./pages/SharePost";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsConditions from "./pages/TermsConditions";
@@ -37,7 +36,6 @@ function AppRoutes() {
         <Route path="/excel/:action?" element={<ExcelTools />} />
         <Route path="/image/:action?" element={<ImageTools />} />
         <Route path="/chat" element={<ChatStudio />} />
-        <Route path="/whatsapp" element={<WhatsAppStudio />} />
         <Route path="/share/:id" element={<SharePost />} />
         <Route path="/guides" element={<Guides />} />
         <Route path="/guides/:slug" element={<GuideDetail />} />
@@ -64,7 +62,7 @@ export default function App() {
         <Route
           path="/*"
           element={
-            <div className="min-h-screen flex flex-col text-white font-inter overflow-x-hidden pt-16 selection:bg-indigo-500/30 selection:text-white">
+            <div className="min-h-screen flex flex-col bg-[#07071A] text-white font-inter overflow-x-hidden pt-16 selection:bg-indigo-500/30 selection:text-white">
               <Header />
               <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col">
                 <AppRoutes />

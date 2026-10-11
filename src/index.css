@@ -71,17 +71,35 @@
 
 html {
   scroll-behavior: smooth;
+  background-color: #07071a;
+  color-scheme: dark;
 }
 
 body {
   font-family: "Inter", "Outfit", sans-serif;
-  background: linear-gradient(-45deg, #07071a, #1a1040, #0a2040, #120828);
-  background-size: 400% 400%;
-  animation: gradientBG 15s ease infinite;
+  background-color: #07071a;
+  background-image:
+    radial-gradient(
+      circle at 15% 50%,
+      rgba(108, 99, 255, 0.08),
+      transparent 25%
+    ),
+    radial-gradient(
+      circle at 85% 30%,
+      rgba(0, 217, 255, 0.08),
+      transparent 25%
+    );
+  background-attachment: fixed;
   color: var(--text-primary);
   min-height: 100vh;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  color-scheme: dark;
+}
+
+#root {
+  min-height: 100vh;
+  background-color: #07071a;
 }
 
 @keyframes gradientBG {

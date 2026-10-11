@@ -346,9 +346,9 @@ export default function PdfTools() {
           <div
             className="badge"
             style={{
-              background: "white",
-              color: "red",
-              border: "1px solid red",
+              background: "rgba(255, 107, 157, 0.12)",
+              color: "#ff6b9d",
+              border: "1px solid rgba(255, 107, 157, 0.3)",
             }}
           >
             PDF Suite
@@ -622,13 +622,7 @@ export default function PdfTools() {
             {/* Tab: Convert */}
             {activeTool === 3 && (
               <div className="tool-content">
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(2, 1fr)",
-                    gap: 16,
-                  }}
-                >
+                <div className="max-w-xl mx-auto">
                   {[
                     {
                       label: "PDF → Word (.docx)",
@@ -636,21 +630,17 @@ export default function PdfTools() {
                       desc: "Convert your PDF to an editable Word document",
                       color: "#00D9FF",
                     },
-                    {
-                      label: "PDF → Google Docs",
-                      emoji: "📃",
-                      desc: "Convert to Docs-compatible format (.docx)",
-                      color: "#00FFB3",
-                    },
                   ].map((opt, i) => (
                     <motion.div
                       key={i}
                       whileHover={{ y: -3 }}
                       className="card"
                       style={{
-                        padding: 24,
-                        background: "white",
-                        borderColor: `${opt.color}40`,
+                        padding: 28,
+                        background: "rgba(255, 255, 255, 0.03)",
+                        border: "1px solid rgba(255, 255, 255, 0.1)",
+                        borderRadius: 24,
+                        backdropFilter: "blur(16px)",
                         boxShadow: `0 8px 32px ${opt.color}15`,
                       }}
                     >
@@ -669,7 +659,7 @@ export default function PdfTools() {
                       <p
                         style={{
                           fontSize: 13,
-                          color: "#555",
+                          color: "rgba(240, 240, 255, 0.6)",
                           marginBottom: 16,
                         }}
                       >
@@ -699,12 +689,12 @@ export default function PdfTools() {
                                 style={{
                                   fontSize: 14,
                                   fontWeight: 600,
-                                  color: "#333",
+                                  color: "#ffffff",
                                 }}
                               >
                                 Conversion Complete
                               </div>
-                              <div style={{ fontSize: 12, color: "#666" }}>
+                              <div style={{ fontSize: 12, color: "rgba(240, 240, 255, 0.6)" }}>
                                 {convertedFile.name}
                               </div>
                             </div>
@@ -716,7 +706,8 @@ export default function PdfTools() {
                                 flex: 1,
                                 background: opt.color,
                                 borderColor: opt.color,
-                                color: "white",
+                                color: "#000",
+                                fontWeight: 600,
                               }}
                               onClick={() => {
                                 setPreviewFile({
@@ -755,7 +746,7 @@ export default function PdfTools() {
                         </div>
                       ) : isConvertingToDocx ? (
                         <div
-                          className="flex flex-col items-center justify-center p-12 border border-dashed rounded-xl border-black/10 bg-black/5"
+                          className="flex flex-col items-center justify-center p-12 border border-dashed rounded-xl border-white/20 bg-white/5"
                           style={{ minHeight: 200 }}
                         >
                           <RefreshCw
@@ -763,7 +754,7 @@ export default function PdfTools() {
                             size={32}
                             color={opt.color}
                           />
-                          <p className="text-black/70">
+                          <p className="text-white/70">
                             Converting your PDF...
                           </p>
                         </div>
@@ -774,15 +765,8 @@ export default function PdfTools() {
                             try {
                               const fd = new FormData();
                               fd.append("file", f[0]);
-                              let blob;
-                              let ext = "";
-                              if (i === 0) {
-                                blob = await pdfToDocx(fd).unwrap();
-                                ext = ".docx";
-                              } else {
-                                blob = await pdfToDocx(fd).unwrap();
-                                ext = ".docx";
-                              }
+                              const blob = await pdfToDocx(fd).unwrap();
+                              const ext = ".docx";
                               setConvertedFile({
                                 index: i,
                                 name: `converted_${f[0].name.replace(".pdf", ext)}`,

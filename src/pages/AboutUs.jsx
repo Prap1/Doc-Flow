@@ -47,23 +47,23 @@ export default function AboutUs() {
   const milestones = [
     {
       stat: "100%",
-      label: "Client-Side Processing",
-      desc: "Zero retention architecture for complete privacy.",
+      label: "Client-Side Privacy",
+      desc: "Zero retention architecture; files are processed in local RAM.",
     },
     {
       stat: "0",
       label: "Watermarks or Paywalls",
-      desc: "Every export is clean and ready for business or school.",
+      desc: "Every export is clean and ready for academic or professional use.",
     },
     {
-      stat: "100k+",
-      label: "Documents Processed",
-      desc: "Trusted by students, accountants, and freelancers.",
+      stat: "0",
+      label: "Sign-Up Required",
+      desc: "Instant access to all tools without accounts or email collection.",
     },
     {
-      stat: "99.9%",
-      label: "Platform Uptime",
-      desc: "Fast, globally distributed browser access 24/7.",
+      stat: "100%",
+      label: "Free & Accessible",
+      desc: "Essential document utilities openly available to everyone.",
     },
   ];
 

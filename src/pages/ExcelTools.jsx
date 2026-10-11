@@ -241,9 +241,9 @@ export default function ExcelTools() {
           <div
             className="badge"
             style={{
-              background: "white",
-              color: toolColor,
-              border: `1px solid ${toolColor}`,
+              background: "rgba(255, 140, 66, 0.12)",
+              color: "#ff8c42",
+              border: "1px solid rgba(255, 140, 66, 0.3)",
             }}
           >
             XLSX Suite

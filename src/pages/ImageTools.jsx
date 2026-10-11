@@ -341,9 +341,9 @@ export default function ImageTools() {
           <div
             className="badge"
             style={{
-              background: "white",
-              color: toolColor,
-              border: `1px solid ${toolColor}`,
+              background: "rgba(108, 99, 255, 0.12)",
+              color: "#8b84ff",
+              border: "1px solid rgba(108, 99, 255, 0.3)",
             }}
           >
             IMG Suite

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" style="background-color: #07071A; color-scheme: dark;">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/favicon.png" />
@@ -62,9 +62,10 @@
       }
     </script>
   </head>
-  <body>
-    <div id="root">
-      <!-- Semantic Crawler & Pre-render Fallback -->
+  <body style="background-color: #07071A; margin: 0; min-height: 100vh;">
+    <div id="root"></div>
+    <noscript>
+      <!-- Semantic Crawler & Pre-render Fallback for non-JS / Search Engines -->
       <header style="padding: 24px; text-align: center; background-color: #07071A; color: #ffffff; font-family: system-ui, -apple-system, sans-serif;">
         <nav style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px;">
           <a href="/" style="color: #818cf8; text-decoration: none; font-weight: bold;">Home</a>
@@ -128,7 +129,7 @@
       <footer style="padding: 24px; text-align: center; border-top: 1px solid #1e293b; color: #64748b; font-family: system-ui, -apple-system, sans-serif; font-size: 0.85rem;">
         <p>&copy; 2026 ApniPDFs. All rights reserved. | <a href="/about" style="color: #94a3b8;">About Us</a> | <a href="/privacy" style="color: #94a3b8;">Privacy Policy</a> | <a href="/terms" style="color: #94a3b8;">Terms of Service</a> | <a href="/contact" style="color: #94a3b8;">Contact</a> | <a href="/sitemap" style="color: #94a3b8;">Sitemap</a></p>
       </footer>
-    </div>
+    </noscript>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

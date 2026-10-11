@@ -111,10 +111,10 @@ export default function HomeEditorialSection() {
             <Sparkles size={13} /> The Modern Document Standard
           </div>
           <h2 className="text-3xl sm:text-4xl font-outfit font-extrabold text-white mb-4">
-            Why Over 100,000+ Users Rely on ApniPDFs
+            Engineered for Speed, Privacy & Precision
           </h2>
           <p className="text-white/60 text-base sm:text-lg leading-relaxed">
-            Engineered from the ground up for privacy-conscious professionals, educators, students, and businesses who demand speed without sacrificing security.
+            Built from the ground up for students, researchers, and professionals who demand instant document processing without sacrificing privacy or quality.
           </p>
         </div>
 

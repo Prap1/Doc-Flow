@@ -224,9 +224,9 @@ export default function WordTools() {
           <div
             className="badge"
             style={{
-              background: "white",
+              background: "rgba(0, 217, 255, 0.12)",
               color: "#00D9FF",
-              border: "1px solid #00D9FF",
+              border: "1px solid rgba(0, 217, 255, 0.3)",
             }}
           >
             DOCX Suite

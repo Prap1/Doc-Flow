@@ -67,9 +67,9 @@ const modules = [
     path: "/chat",
     emoji: "💬",
     label: "Chat Studio",
-    desc: "Create · Edit · Share · Voice",
-    color: "#EC4899",
-    bg: "rgba(236,72,153,0.08)",
+    desc: "Convert · Filter · View Archives",
+    color: "#00D9FF",
+    bg: "rgba(0,217,255,0.08)",
     badge: "✨ New",
   },
 ];
@@ -166,7 +166,7 @@ export default function Home() {
         </h1>
         <p className="text-white/50 text-lg max-w-xl mx-auto mb-7">
           Edit, merge, split and convert PDFs, Word docs, Spreadsheets, Images
-          and create viral content — all in one beautiful workspace.
+          and chat archives — all in one private workspace.
         </p>
         <div className="flex gap-3 justify-center flex-wrap">
           <Link to="/pdf">
@@ -195,7 +195,7 @@ export default function Home() {
         >
           <div className="flex flex-col lg:flex-row w-full gap-8 mb-8">
             {/* Left side: Upload/Dropzone & Select file */}
-            <div className="flex-1 flex flex-col gap-5 p-8 rounded-3xl bg-white shadow-[0_0_40px_rgba(139,92,246,0.15)] transition-colors">
+            <div className="flex-1 flex flex-col gap-5 p-8 rounded-3xl bg-white/[0.03] border border-white/10 backdrop-blur-md shadow-2xl transition-colors">
               <input
                 type="file"
                 ref={fileInputRef}
@@ -204,33 +204,33 @@ export default function Home() {
               />
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="flex-1 min-h-[180px] rounded-2xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center bg-gray-50 transition-all duration-300 cursor-pointer hover:bg-gray-100 hover:border-indigo-400"
+                className="flex-1 min-h-[180px] rounded-2xl border-2 border-dashed border-white/15 flex flex-col items-center justify-center bg-white/[0.02] transition-all duration-300 cursor-pointer hover:bg-white/[0.05] hover:border-indigo-400/50"
               >
-                <UploadCloud size={48} className="text-indigo-500 mb-4" />
-                <p className="text-lg font-medium text-gray-900 mb-2 text-center">
+                <UploadCloud size={48} className="text-indigo-400 mb-4" />
+                <p className="text-lg font-medium text-white mb-2 text-center">
                   Create Your Own Things....
                 </p>
-                <p className="text-sm text-gray-500 text-center">
+                <p className="text-sm text-white/50 text-center">
                   Drag and drop or click to upload
                 </p>
               </div>
 
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full py-4 px-6 rounded-xl border-2 border-yellow-500 text-yellow-600 font-bold text-lg flex justify-center transition-all hover:bg-yellow-50"
+                className="w-full py-3.5 px-6 rounded-xl border border-indigo-500/40 bg-indigo-500/10 text-indigo-300 font-bold text-base flex justify-center transition-all hover:bg-indigo-500/20"
               >
                 Select your file
               </button>
             </div>
 
             {/* Right side: Typing area */}
-            <div className="flex-1 flex flex-col p-8 rounded-3xl bg-white shadow-[0_0_40px_rgba(139,92,246,0.15)] transition-colors">
+            <div className="flex-1 flex flex-col p-8 rounded-3xl bg-white/[0.03] border border-white/10 backdrop-blur-md shadow-2xl transition-colors">
               <div className="w-full flex flex-col h-full">
                 {isTyping && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex gap-1.5 p-2 bg-gray-100 rounded-t-xl border border-gray-200 border-b-0 items-center overflow-x-auto"
+                    className="flex gap-1.5 p-2 bg-white/5 rounded-t-xl border border-white/10 border-b-0 items-center overflow-x-auto"
                   >
                     <button
                       title="Bold"
@@ -238,7 +238,7 @@ export default function Home() {
                         e.preventDefault();
                         document.execCommand("bold", false, null);
                       }}
-                      className="p-1 bg-transparent border-none cursor-pointer text-gray-600 hover:text-gray-900"
+                      className="p-1 bg-transparent border-none cursor-pointer text-white/70 hover:text-white"
                     >
                       <Bold size={16} />
                     </button>
@@ -248,7 +248,7 @@ export default function Home() {
                         e.preventDefault();
                         document.execCommand("italic", false, null);
                       }}
-                      className="p-1 bg-transparent border-none cursor-pointer text-gray-600 hover:text-gray-900"
+                      className="p-1 bg-transparent border-none cursor-pointer text-white/70 hover:text-white"
                     >
                       <Italic size={16} />
                     </button>
@@ -258,12 +258,12 @@ export default function Home() {
                         e.preventDefault();
                         document.execCommand("underline", false, null);
                       }}
-                      className="p-1 bg-transparent border-none cursor-pointer text-gray-600 hover:text-gray-900"
+                      className="p-1 bg-transparent border-none cursor-pointer text-white/70 hover:text-white"
                     >
                       <Underline size={16} />
                     </button>
 
-                    <div className="w-[1px] h-4 bg-gray-300 mx-1" />
+                    <div className="w-[1px] h-4 bg-white/10 mx-1" />
 
                     <button
                       title="Align Left"
@@ -271,7 +271,7 @@ export default function Home() {
                         e.preventDefault();
                         document.execCommand("justifyLeft", false, null);
                       }}
-                      className="p-1 bg-transparent border-none cursor-pointer text-gray-600 hover:text-gray-900"
+                      className="p-1 bg-transparent border-none cursor-pointer text-white/70 hover:text-white"
                     >
                       <AlignLeft size={16} />
                     </button>
@@ -281,7 +281,7 @@ export default function Home() {
                         e.preventDefault();
                         document.execCommand("justifyCenter", false, null);
                       }}
-                      className="p-1 bg-transparent border-none cursor-pointer text-gray-600 hover:text-gray-900"
+                      className="p-1 bg-transparent border-none cursor-pointer text-white/70 hover:text-white"
                     >
                       <AlignCenter size={16} />
                     </button>
@@ -291,12 +291,12 @@ export default function Home() {
                         e.preventDefault();
                         document.execCommand("justifyRight", false, null);
                       }}
-                      className="p-1 bg-transparent border-none cursor-pointer text-gray-600 hover:text-gray-900"
+                      className="p-1 bg-transparent border-none cursor-pointer text-white/70 hover:text-white"
                     >
                       <AlignRight size={16} />
                     </button>
 
-                    <div className="w-[1px] h-4 bg-gray-300 mx-1" />
+                    <div className="w-[1px] h-4 bg-white/10 mx-1" />
 
                     <button
                       title="Notebook Font"
@@ -308,7 +308,7 @@ export default function Home() {
                           "Comic Sans MS",
                         );
                       }}
-                      className="p-1 bg-transparent border-none cursor-pointer text-gray-600 hover:text-gray-900"
+                      className="p-1 bg-transparent border-none cursor-pointer text-white/70 hover:text-white"
                     >
                       <Book size={16} />
                     </button>
@@ -318,7 +318,7 @@ export default function Home() {
                         e.preventDefault();
                         document.execCommand("foreColor", false, "#3b82f6");
                       }}
-                      className="p-1 bg-transparent border-none cursor-pointer text-gray-600 hover:text-gray-900"
+                      className="p-1 bg-transparent border-none cursor-pointer text-white/70 hover:text-white"
                     >
                       <PenTool size={16} />
                     </button>
@@ -328,7 +328,7 @@ export default function Home() {
                         e.preventDefault();
                         document.execCommand("hiliteColor", false, "#fef08a");
                       }}
-                      className="p-1 bg-transparent border-none cursor-pointer text-gray-600 hover:text-gray-900"
+                      className="p-1 bg-transparent border-none cursor-pointer text-white/70 hover:text-white"
                     >
                       <Pencil size={16} />
                     </button>
@@ -338,15 +338,15 @@ export default function Home() {
                         e.preventDefault();
                         document.execCommand("removeFormat", false, null);
                       }}
-                      className="p-1 bg-transparent border-none cursor-pointer text-gray-600 hover:text-gray-900"
+                      className="p-1 bg-transparent border-none cursor-pointer text-white/70 hover:text-white"
                     >
                       <Eraser size={16} />
                     </button>
 
-                    <div className="w-[1px] h-4 bg-gray-300 mx-1" />
+                    <div className="w-[1px] h-4 bg-white/10 mx-1" />
 
                     <label className="flex items-center cursor-pointer">
-                      <Palette size={16} className="text-gray-600 mr-1" />
+                      <Palette size={16} className="text-white/70 mr-1" />
                       <input
                         title="Color Selection"
                         type="color"
@@ -362,7 +362,7 @@ export default function Home() {
                     </label>
 
                     <div className="flex items-center">
-                      <Type size={16} className="text-gray-600 mr-1" />
+                      <Type size={16} className="text-white/70 mr-1" />
                       <select
                         title="Font Size"
                         onChange={(e) =>
@@ -372,10 +372,10 @@ export default function Home() {
                             e.target.value,
                           )
                         }
-                        className="border border-gray-300 rounded p-0.5 text-black text-xs bg-white"
+                        className="border border-white/10 rounded p-0.5 text-white text-xs bg-slate-900"
                       >
                         <option value="2">Small</option>
-                        <option value="3" selected>
+                        <option value="3" defaultValue>
                           Normal
                         </option>
                         <option value="4">Large</option>
@@ -383,7 +383,7 @@ export default function Home() {
                       </select>
                     </div>
 
-                    <div className="w-[1px] h-4 bg-gray-300 mx-1" />
+                    <div className="w-[1px] h-4 bg-white/10 mx-1" />
 
                     <button
                       title="Add Meaning"
@@ -394,7 +394,7 @@ export default function Home() {
                           setSavedRange(sel.getRangeAt(0));
                         setShowMeaningPopup(true);
                       }}
-                      className="bg-gray-200 border border-gray-300 rounded-md cursor-pointer px-2 py-1 text-xs font-bold text-gray-700 hover:bg-gray-300"
+                      className="bg-white/10 border border-white/10 rounded-md cursor-pointer px-2 py-1 text-xs font-bold text-white hover:bg-white/20"
                     >
                       **
                     </button>
@@ -410,10 +410,10 @@ export default function Home() {
                       setIsTyping(false);
                     }
                   }}
-                  className={`w-full flex-1 p-6 text-[15px] outline-none transition-all text-left bg-gray-50 text-gray-900 ${isTyping ? "border border-indigo-500 rounded-b-xl min-h-[calc(100%-44px)]" : "border border-gray-200 rounded-2xl min-h-[180px] hover:border-gray-300"}`}
+                  className={`w-full flex-1 p-6 text-[15px] outline-none transition-all text-left bg-white/[0.02] text-white ${isTyping ? "border border-indigo-500 rounded-b-xl min-h-[calc(100%-44px)]" : "border border-white/10 rounded-2xl min-h-[180px] hover:border-white/20"}`}
                 >
                   {!isTyping && (
-                    <span className="text-gray-400 pointer-events-none">
+                    <span className="text-white/30 pointer-events-none">
                       Typing...
                     </span>
                   )}
@@ -426,7 +426,7 @@ export default function Home() {
             <div className="px-8 py-3 bg-white/5 hover:bg-white/10 rounded-full border border-white/10 flex items-center gap-3 cursor-pointer transition-transform hover:scale-105">
               <span className="text-lg">✨</span>
               <span className="font-medium text-white/90 tracking-wide">
-                Chat / Story / Post
+                Chat Studio
               </span>
               <span className="text-lg">✨</span>
             </div>
@@ -534,53 +534,6 @@ export default function Home() {
           ))}
         </motion.div>
       </div>
-
-      {/* Feature highlight */}
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-        className="card"
-        style={{
-          padding: 32,
-          background:
-            "linear-gradient(135deg, rgba(108,99,255,0.1), rgba(0,217,255,0.05))",
-          borderColor: "rgba(108,99,255,0.2)",
-          marginTop: 8,
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 20,
-            flexWrap: "wrap",
-          }}
-        >
-          <div style={{ fontSize: 48 }}>🎤</div>
-          <div style={{ flex: 1 }}>
-            <h2
-              style={{
-                fontFamily: "Outfit, sans-serif",
-                fontSize: 22,
-                fontWeight: 700,
-                marginBottom: 6,
-              }}
-            >
-              Voice-Powered Chat Studio
-            </h2>
-            <p style={{ color: "rgba(240,240,255,0.55)", fontSize: 14 }}>
-              Create engaging posts, stories & chats — record voice messages
-              that recipients can play back directly. Share with one click.
-            </p>
-          </div>
-          <Link to="/chat">
-            <button className="btn btn-primary">
-              <MessageSquare size={16} /> Try Chat Studio
-            </button>
-          </Link>
-        </div>
-      </motion.div>
 
       {/* Comprehensive Editorial & Guide Content */}
       <HomeEditorialSection />

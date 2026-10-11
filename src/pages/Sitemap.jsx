@@ -227,7 +227,7 @@ export default function Sitemap() {
     },
     {
       category: "Social Studio",
-      description: "Interactive post generation and WhatsApp chat visualization",
+      description: "Interactive post and story design studio",
       color: "from-emerald-500 to-teal-600",
       textColor: "text-emerald-400",
       borderColor: "border-emerald-500/20",
@@ -238,15 +238,9 @@ export default function Sitemap() {
         {
           title: "Post Studio",
           path: "/chat",
-          desc: "Create dynamic shareable posts with voice notes, media attachments, and reactions.",
+          desc: "Create dynamic shareable posts, media attachments, and reactions.",
           icon: <MessageSquare size={16} />,
           badge: "Interactive",
-        },
-        {
-          title: "WhatsApp Chat Studio",
-          path: "/whatsapp",
-          desc: "Upload and visualize WhatsApp chat backups with interactive conversation UI.",
-          icon: <MessagesSquare size={16} />,
         },
       ],
     },
